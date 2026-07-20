@@ -4,7 +4,7 @@ import com.bankapp.dto.Account;
 
 import java.math.BigDecimal;
 import java.util.List;
-
+//BL= Business Logic= Use cases + Rules+ CCC
 public interface AccountService {
     public List<Account> getAll();
     public Account getAccountById(int id);

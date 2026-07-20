@@ -3,6 +3,7 @@ package com.bankapp.repo.impl;
 import com.bankapp.dto.Account;
 import com.bankapp.exceptions.BankAccountNotFoundException;
 import com.bankapp.repo.AccountRepo;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -10,19 +11,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 @Repository
-public class AccountRepoMapImpl implements AccountRepo{
+public class AccountRepoJpaImpl implements AccountRepo{
 
     private Map<Integer, Account> accounts = new HashMap<>();
     //use ctr to insert two account holder raj and ekta with initial bal of 2000
-    public AccountRepoMapImpl() {
+    public AccountRepoJpaImpl() {
         accounts.put(1, new Account(1, "Raj", new BigDecimal(2000)));
         accounts.put(2, new Account(2, "Ekta", new BigDecimal(2000)));
     }
 
     @Override
     public List<Account> getAll() {
-        System.out.println("getAll() called--hahsmap version");
+        System.out.println("getAll() called--jpa version");
         return new ArrayList<>(accounts.values());
     }
 

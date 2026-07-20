@@ -2,7 +2,7 @@ package com.basics.loosecoupling;
 
 import java.util.LinkedList;
 
-class StackImpAmit { 
+class StackImpAmit implements  Stack {
     private LinkedList<Integer> list;
     private final int SIZE;
 
@@ -11,7 +11,7 @@ class StackImpAmit {
         this.list = new LinkedList<>();
     }
 
-    public void pushAmit(int element) { 
+    public void push(int element) {
         if (list.size() >= SIZE) {   
             System.out.println("Stack Overflow!");
             return;
@@ -19,7 +19,7 @@ class StackImpAmit {
         list.addLast(element);   
     }
 
-    public int popAmit() { 
+    public int pop() {
         if (list.isEmpty()) {        
             System.out.println("Stack Underflow!");
             return -99;

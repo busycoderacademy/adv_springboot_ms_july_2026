@@ -1,6 +1,6 @@
 package com.basics.loosecoupling;
 
-class StackImpRaj {
+class StackImpRaj implements  Stack {
     private int[] x;
     private final int SIZE;
     private int top;
@@ -11,7 +11,7 @@ class StackImpRaj {
         this.top = -1;
     }
 
-    public void pushRaj(int element) {
+    public void push(int element) {
         if (top >= SIZE - 1) {   
             System.out.println("Stack Overflow!");
             return;
@@ -19,7 +19,7 @@ class StackImpRaj {
         x[++top] = element;   
     }
 
-    public int popRaj() {
+    public int pop() {
         if (top == -1) {        
             System.out.println("Stack Underflow!");
             return -99;

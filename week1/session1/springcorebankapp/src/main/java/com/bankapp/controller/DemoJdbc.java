@@ -5,6 +5,9 @@ import java.sql.*;
 
 public class DemoJdbc {
     public static void main(String[] args) {
+        //what is jdbc: jdbc is java database connectivity
+        //used to connect to the database
+        //So much boilerplate code?
         String url = "jdbc:mysql://localhost:3306/bankdb";
         String username = "root";
         String password = "root";
@@ -14,6 +17,7 @@ public class DemoJdbc {
              con = DriverManager.getConnection(url, username, password);
 
              con.setAutoCommit(false);
+
             PreparedStatement debitStmt = con.prepareStatement(
                     "UPDATE account SET balance = balance - ? WHERE id = ?");
 
@@ -23,7 +27,7 @@ public class DemoJdbc {
 
             // Credit Ekta (id = 6)
             PreparedStatement creditStmt = con.prepareStatement(
-                    "UPDATE account SET balance = balance + ? WHERE id = ?");
+                    "UPDATE account SET lance = balance + ? WHERE id = ?");
 
             creditStmt.setBigDecimal(1, new BigDecimal("100"));
             creditStmt.setInt(2,6 );
@@ -37,6 +41,7 @@ public class DemoJdbc {
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
+
         }finally {
            if(con!=null){
                try {
