@@ -1,5 +1,6 @@
 package com.bankapp;
 
+import com.bankapp.dto.Account;
 import com.bankapp.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -28,8 +29,10 @@ public class BankappApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
+//		Account account=accountService.getById(100);
+//		System.out.println(account);
 		accountService.getAll().forEach(System.out::println);
-		accountService.transfer(3, 2, new BigDecimal(10000));
+		accountService.transfer(2, 3, new BigDecimal(5000));
 		accountService.getAll().forEach(System.out::println);
 	}
 }
