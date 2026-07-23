@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="jpa-04-one-2-one-uni" />
+        <module name="jpa-04-one-2-one-uni (1)" />
+        <module name="hibernate-00-helloworld (4)" />
+        <module name="hibernate-00-helloworld (1)" />
+        <module name="hibernate-00-helloworld (3)" />
+        <module name="jpa-01" />
+        <module name="hibernate-00-helloworld (2)" />
+        <module name="hibernate-00-helloworld" />
+      </profile>
+    </annotationProcessing>
+  </component>
+</project>
