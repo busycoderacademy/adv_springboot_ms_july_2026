@@ -1,0 +1,345 @@
+INFO  | 2026-07-23 13:07:10 | [main] boot.StartupInfoLogger (StartupInfoLogger.java:50) - Starting BankappApplication using Java 21.0.10 with PID 17016 (C:\adv_springboot_ms_july_2026\week1\session4\bankapp_monolith\target\classes started by busyc in C:\adv_springboot_ms_july_2026\week1\session4\bankapp_monolith)
+INFO  | 2026-07-23 13:07:10 | [main] boot.SpringApplication (SpringApplication.java:660) - The following 1 profile is active: "dev"
+INFO  | 2026-07-23 13:07:11 | [main] config.RepositoryConfigurationDelegate (RepositoryConfigurationDelegate.java:143) - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+INFO  | 2026-07-23 13:07:11 | [main] config.RepositoryConfigurationDelegate (RepositoryConfigurationDelegate.java:211) - Finished Spring Data repository scanning in 67 ms. Found 1 JPA repository interface.
+INFO  | 2026-07-23 13:07:12 | [main] tomcat.TomcatWebServer (TomcatWebServer.java:109) - Tomcat initialized with port 8090 (http)
+INFO  | 2026-07-23 13:07:12 | [main] logging.DirectJDKLog (DirectJDKLog.java:173) - Initializing ProtocolHandler ["http-nio-8090"]
+INFO  | 2026-07-23 13:07:12 | [main] logging.DirectJDKLog (DirectJDKLog.java:173) - Starting service [Tomcat]
+INFO  | 2026-07-23 13:07:12 | [main] logging.DirectJDKLog (DirectJDKLog.java:173) - Starting Servlet engine: [Apache Tomcat/10.1.20]
+INFO  | 2026-07-23 13:07:12 | [main] logging.DirectJDKLog (DirectJDKLog.java:173) - Initializing Spring embedded WebApplicationContext
+INFO  | 2026-07-23 13:07:12 | [main] context.ServletWebServerApplicationContext (ServletWebServerApplicationContext.java:296) - Root WebApplicationContext: initialization completed in 1657 ms
+INFO  | 2026-07-23 13:07:12 | [main] hikari.HikariDataSource (HikariDataSource.java:110) - HikariPool-1 - Starting...
+INFO  | 2026-07-23 13:07:12 | [main] pool.HikariPool (HikariPool.java:565) - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
+INFO  | 2026-07-23 13:07:12 | [main] hikari.HikariDataSource (HikariDataSource.java:123) - HikariPool-1 - Start completed.
+INFO  | 2026-07-23 13:07:12 | [main] h2.H2ConsoleAutoConfiguration (H2ConsoleAutoConfiguration.java:88) - H2 console available at '/h2'. Database available at 'jdbc:h2:mem:testdb'
+INFO  | 2026-07-23 13:07:13 | [main] persistenceunit.SpringPersistenceUnitInfo (SpringPersistenceUnitInfo.java:87) - No LoadTimeWeaver setup: ignoring JPA class transformer
+INFO  | 2026-07-23 13:07:13 | [main] jpa.AbstractEntityManagerFactoryBean (AbstractEntityManagerFactoryBean.java:437) - Initialized JPA EntityManagerFactory for persistence unit 'default'
+INFO  | 2026-07-23 13:07:14 | [main] query.QueryEnhancerFactory (QueryEnhancerFactory.java:49) - Hibernate is in classpath; If applicable, HQL parser will be used.
+WARN  | 2026-07-23 13:07:14 | [main] jpa.JpaBaseConfiguration$JpaWebConfiguration (JpaBaseConfiguration.java:232) - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+DEBUG | 2026-07-23 13:07:14 | [main] handler.AbstractHandlerMethodMapping (AbstractHandlerMethodMapping.java:366) - 9 mappings in 'requestMappingHandlerMapping'
+DEBUG | 2026-07-23 13:07:14 | [main] handler.SimpleUrlHandlerMapping (SimpleUrlHandlerMapping.java:187) - Patterns [/webjars/**, /**] in 'resourceHandlerMapping'
+DEBUG | 2026-07-23 13:07:14 | [main] annotation.RequestMappingHandlerAdapter (RequestMappingHandlerAdapter.java:634) - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+DEBUG | 2026-07-23 13:07:14 | [main] annotation.ExceptionHandlerExceptionResolver (ExceptionHandlerExceptionResolver.java:305) - ControllerAdvice beans: 1 @ExceptionHandler, 1 ResponseBodyAdvice
+INFO  | 2026-07-23 13:07:14 | [main] logging.DirectJDKLog (DirectJDKLog.java:173) - Starting ProtocolHandler ["http-nio-8090"]
+INFO  | 2026-07-23 13:07:14 | [main] tomcat.TomcatWebServer (TomcatWebServer.java:241) - Tomcat started on port 8090 (http) with context path '/bankapp'
+INFO  | 2026-07-23 13:07:14 | [main] boot.StartupInfoLogger (StartupInfoLogger.java:56) - Started BankappApplication in 4.773 seconds (process running for 5.758)
+INFO  | 2026-07-23 13:07:14 | [main] aspect.LoggingAspect (LoggingAspect.java:21) - Method create completed in 34 ms
+INFO  | 2026-07-23 13:07:15 | [main] aspect.LoggingAspect (LoggingAspect.java:21) - Method create completed in 0 ms
+INFO  | 2026-07-23 13:07:15 | [main] aspect.LoggingAspect (LoggingAspect.java:21) - Method findAll completed in 53 ms
+INFO  | 2026-07-23 13:07:36 | [SpringApplicationShutdownHook] jpa.AbstractEntityManagerFactoryBean (AbstractEntityManagerFactoryBean.java:650) - Closing JPA EntityManagerFactory for persistence unit 'default'
+INFO  | 2026-07-23 13:07:36 | [SpringApplicationShutdownHook] hikari.HikariDataSource (HikariDataSource.java:350) - HikariPool-1 - Shutdown initiated...
+INFO  | 2026-07-23 13:07:36 | [SpringApplicationShutdownHook] hikari.HikariDataSource (HikariDataSource.java:352) - HikariPool-1 - Shutdown completed.
+INFO  | 2026-07-23 13:07:44 | [main] boot.StartupInfoLogger (StartupInfoLogger.java:50) - Starting BankappApplication using Java 21.0.10 with PID 25296 (C:\adv_springboot_ms_july_2026\week1\session4\bankapp_monolith\target\classes started by busyc in C:\adv_springboot_ms_july_2026\week1\session4\bankapp_monolith)
+INFO  | 2026-07-23 13:07:44 | [main] boot.SpringApplication (SpringApplication.java:660) - The following 1 profile is active: "dev"
+INFO  | 2026-07-23 13:07:45 | [main] config.RepositoryConfigurationDelegate (RepositoryConfigurationDelegate.java:143) - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+INFO  | 2026-07-23 13:07:45 | [main] config.RepositoryConfigurationDelegate (RepositoryConfigurationDelegate.java:211) - Finished Spring Data repository scanning in 79 ms. Found 1 JPA repository interface.
+INFO  | 2026-07-23 13:07:46 | [main] tomcat.TomcatWebServer (TomcatWebServer.java:109) - Tomcat initialized with port 8090 (http)
+INFO  | 2026-07-23 13:07:46 | [main] logging.DirectJDKLog (DirectJDKLog.java:173) - Initializing ProtocolHandler ["http-nio-8090"]
+INFO  | 2026-07-23 13:07:46 | [main] logging.DirectJDKLog (DirectJDKLog.java:173) - Starting service [Tomcat]
+INFO  | 2026-07-23 13:07:46 | [main] logging.DirectJDKLog (DirectJDKLog.java:173) - Starting Servlet engine: [Apache Tomcat/10.1.20]
+INFO  | 2026-07-23 13:07:46 | [main] logging.DirectJDKLog (DirectJDKLog.java:173) - Initializing Spring embedded WebApplicationContext
+INFO  | 2026-07-23 13:07:46 | [main] context.ServletWebServerApplicationContext (ServletWebServerApplicationContext.java:296) - Root WebApplicationContext: initialization completed in 2016 ms
+INFO  | 2026-07-23 13:07:46 | [main] hikari.HikariDataSource (HikariDataSource.java:110) - HikariPool-1 - Starting...
+INFO  | 2026-07-23 13:07:46 | [main] pool.HikariPool (HikariPool.java:565) - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
+INFO  | 2026-07-23 13:07:46 | [main] hikari.HikariDataSource (HikariDataSource.java:123) - HikariPool-1 - Start completed.
+INFO  | 2026-07-23 13:07:46 | [main] h2.H2ConsoleAutoConfiguration (H2ConsoleAutoConfiguration.java:88) - H2 console available at '/h2'. Database available at 'jdbc:h2:mem:testdb'
+INFO  | 2026-07-23 13:07:47 | [main] persistenceunit.SpringPersistenceUnitInfo (SpringPersistenceUnitInfo.java:87) - No LoadTimeWeaver setup: ignoring JPA class transformer
+INFO  | 2026-07-23 13:07:47 | [main] jpa.AbstractEntityManagerFactoryBean (AbstractEntityManagerFactoryBean.java:437) - Initialized JPA EntityManagerFactory for persistence unit 'default'
+INFO  | 2026-07-23 13:07:48 | [main] query.QueryEnhancerFactory (QueryEnhancerFactory.java:49) - Hibernate is in classpath; If applicable, HQL parser will be used.
+WARN  | 2026-07-23 13:07:48 | [main] jpa.JpaBaseConfiguration$JpaWebConfiguration (JpaBaseConfiguration.java:232) - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+DEBUG | 2026-07-23 13:07:48 | [main] handler.AbstractHandlerMethodMapping (AbstractHandlerMethodMapping.java:366) - 9 mappings in 'requestMappingHandlerMapping'
+DEBUG | 2026-07-23 13:07:48 | [main] handler.SimpleUrlHandlerMapping (SimpleUrlHandlerMapping.java:187) - Patterns [/webjars/**, /**] in 'resourceHandlerMapping'
+DEBUG | 2026-07-23 13:07:48 | [main] annotation.RequestMappingHandlerAdapter (RequestMappingHandlerAdapter.java:634) - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+DEBUG | 2026-07-23 13:07:48 | [main] annotation.ExceptionHandlerExceptionResolver (ExceptionHandlerExceptionResolver.java:305) - ControllerAdvice beans: 1 @ExceptionHandler, 1 ResponseBodyAdvice
+INFO  | 2026-07-23 13:07:48 | [main] logging.DirectJDKLog (DirectJDKLog.java:173) - Starting ProtocolHandler ["http-nio-8090"]
+INFO  | 2026-07-23 13:07:48 | [main] tomcat.TomcatWebServer (TomcatWebServer.java:241) - Tomcat started on port 8090 (http) with context path '/bankapp'
+INFO  | 2026-07-23 13:07:48 | [main] boot.StartupInfoLogger (StartupInfoLogger.java:56) - Started BankappApplication in 5.259 seconds (process running for 6.006)
+INFO  | 2026-07-23 13:07:49 | [main] aspect.LoggingAspect (LoggingAspect.java:21) - Method create completed in 48 ms
+INFO  | 2026-07-23 13:07:49 | [main] aspect.LoggingAspect (LoggingAspect.java:21) - Method create completed in 0 ms
+INFO  | 2026-07-23 13:07:49 | [main] aspect.LoggingAspect (LoggingAspect.java:21) - Method findAll completed in 53 ms
+INFO  | 2026-07-23 13:07:53 | [http-nio-8090-exec-1] logging.DirectJDKLog (DirectJDKLog.java:173) - Initializing Spring DispatcherServlet 'dispatcherServlet'
+INFO  | 2026-07-23 13:07:53 | [http-nio-8090-exec-1] servlet.FrameworkServlet (FrameworkServlet.java:532) - Initializing Servlet 'dispatcherServlet'
+DEBUG | 2026-07-23 13:07:53 | [http-nio-8090-exec-1] servlet.DispatcherServlet (DispatcherServlet.java:533) - Detected StandardServletMultipartResolver
+DEBUG | 2026-07-23 13:07:53 | [http-nio-8090-exec-1] servlet.DispatcherServlet (DispatcherServlet.java:557) - Detected AcceptHeaderLocaleResolver
+DEBUG | 2026-07-23 13:07:53 | [http-nio-8090-exec-1] servlet.DispatcherServlet (DispatcherServlet.java:583) - Detected FixedThemeResolver
+DEBUG | 2026-07-23 13:07:53 | [http-nio-8090-exec-1] servlet.DispatcherServlet (DispatcherServlet.java:733) - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@23b62cc3
+DEBUG | 2026-07-23 13:07:53 | [http-nio-8090-exec-1] servlet.DispatcherServlet (DispatcherServlet.java:797) - Detected org.springframework.web.servlet.support.SessionFlashMapManager@1e40edb7
+DEBUG | 2026-07-23 13:07:53 | [http-nio-8090-exec-1] servlet.FrameworkServlet (FrameworkServlet.java:549) - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+INFO  | 2026-07-23 13:07:53 | [http-nio-8090-exec-1] servlet.FrameworkServlet (FrameworkServlet.java:554) - Completed initialization in 4 ms
+DEBUG | 2026-07-23 13:07:53 | [http-nio-8090-exec-1] log.LogFormatUtils (LogFormatUtils.java:120) - GET "/bankapp/api/v1/accounts", parameters={}
+DEBUG | 2026-07-23 13:07:53 | [http-nio-8090-exec-1] handler.AbstractHandlerMapping (AbstractHandlerMapping.java:531) - Mapped to com.bankapp.controller.AccountCrudController#getAll()
+INFO  | 2026-07-23 13:07:53 | [http-nio-8090-exec-1] aspect.LoggingAspect (LoggingAspect.java:21) - Method findAll completed in 2 ms
+DEBUG | 2026-07-23 13:07:53 | [http-nio-8090-exec-1] annotation.AbstractMessageConverterMethodProcessor (AbstractMessageConverterMethodProcessor.java:275) - Using 'application/json', given [application/json] and supported [application/json]
+DEBUG | 2026-07-23 13:07:53 | [http-nio-8090-exec-1] log.LogFormatUtils (LogFormatUtils.java:120) - Writing [[AccountDto(id=1, accountHolderName=Raj, balance=1000.00), AccountDto(id=2, accountHolderName=Ekta,  (truncated)...]
+DEBUG | 2026-07-23 13:07:53 | [http-nio-8090-exec-1] servlet.FrameworkServlet (FrameworkServlet.java:1138) - Completed 200 OK
+INFO  | 2026-07-23 13:25:13 | [SpringApplicationShutdownHook] jpa.AbstractEntityManagerFactoryBean (AbstractEntityManagerFactoryBean.java:650) - Closing JPA EntityManagerFactory for persistence unit 'default'
+INFO  | 2026-07-23 13:25:13 | [SpringApplicationShutdownHook] hikari.HikariDataSource (HikariDataSource.java:350) - HikariPool-1 - Shutdown initiated...
+INFO  | 2026-07-23 13:25:13 | [SpringApplicationShutdownHook] hikari.HikariDataSource (HikariDataSource.java:352) - HikariPool-1 - Shutdown completed.
+INFO  | 2026-07-23 13:33:59 | [main] boot.StartupInfoLogger (StartupInfoLogger.java:50) - Starting BankappApplication using Java 21.0.10 with PID 26412 (C:\adv_springboot_ms_july_2026\week1\session4\bankapp_monolith\target\classes started by busyc in C:\adv_springboot_ms_july_2026\week1\session4\bankapp_monolith)
+INFO  | 2026-07-23 13:33:59 | [main] boot.SpringApplication (SpringApplication.java:660) - The following 1 profile is active: "dev"
+WARN  | 2026-07-23 13:33:59 | [main] support.AbstractApplicationContext (AbstractApplicationContext.java:632) - Exception encountered during context initialization - cancelling refresh attempt: java.lang.IllegalStateException: Error processing condition on org.springdoc.webmvc.ui.SwaggerConfig.springWebProvider
+INFO  | 2026-07-23 13:33:59 | [main] logging.ConditionEvaluationReportLogger (ConditionEvaluationReportLogger.java:82) - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+ERROR | 2026-07-23 13:33:59 | [main] boot.SpringApplication (SpringApplication.java:851) - Application run failed
+java.lang.IllegalStateException: Error processing condition on org.springdoc.webmvc.ui.SwaggerConfig.springWebProvider
+	at org.springframework.boot.autoconfigure.condition.SpringBootCondition.matches(SpringBootCondition.java:60) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	at org.springframework.context.annotation.ConditionEvaluator.shouldSkip(ConditionEvaluator.java:108) ~[spring-context-6.1.6.jar:6.1.6]
+	at org.springframework.context.annotation.ConfigurationClassBeanDefinitionReader.loadBeanDefinitionsForBeanMethod(ConfigurationClassBeanDefinitionReader.java:183) ~[spring-context-6.1.6.jar:6.1.6]
+	at org.springframework.context.annotation.ConfigurationClassBeanDefinitionReader.loadBeanDefinitionsForConfigurationClass(ConfigurationClassBeanDefinitionReader.java:144) ~[spring-context-6.1.6.jar:6.1.6]
+	at org.springframework.context.annotation.ConfigurationClassBeanDefinitionReader.loadBeanDefinitions(ConfigurationClassBeanDefinitionReader.java:120) ~[spring-context-6.1.6.jar:6.1.6]
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.processConfigBeanDefinitions(ConfigurationClassPostProcessor.java:428) ~[spring-context-6.1.6.jar:6.1.6]
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.postProcessBeanDefinitionRegistry(ConfigurationClassPostProcessor.java:289) ~[spring-context-6.1.6.jar:6.1.6]
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanDefinitionRegistryPostProcessors(PostProcessorRegistrationDelegate.java:349) ~[spring-context-6.1.6.jar:6.1.6]
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(PostProcessorRegistrationDelegate.java:118) ~[spring-context-6.1.6.jar:6.1.6]
+	at org.springframework.context.support.AbstractApplicationContext.invokeBeanFactoryPostProcessors(AbstractApplicationContext.java:788) ~[spring-context-6.1.6.jar:6.1.6]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:606) ~[spring-context-6.1.6.jar:6.1.6]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754) [spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456) [spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334) [spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) [spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343) [spring-boot-3.2.5.jar:3.2.5]
+	at com.bankapp.BankappApplication.main(BankappApplication.java:35) [classes/:?]
+Caused by: java.lang.IllegalStateException: Failed to introspect Class [org.springdoc.webmvc.ui.SwaggerConfig] from ClassLoader [jdk.internal.loader.ClassLoaders$AppClassLoader@76ed5528]
+	at org.springframework.util.ReflectionUtils.getDeclaredMethods(ReflectionUtils.java:483) ~[spring-core-6.1.6.jar:6.1.6]
+	at org.springframework.util.ReflectionUtils.doWithMethods(ReflectionUtils.java:360) ~[spring-core-6.1.6.jar:6.1.6]
+	at org.springframework.util.ReflectionUtils.getUniqueDeclaredMethods(ReflectionUtils.java:417) ~[spring-core-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.lambda$getTypeForFactoryMethod$1(AbstractAutowireCapableBeanFactory.java:750) ~[spring-beans-6.1.6.jar:6.1.6]
+	at java.base/java.util.concurrent.ConcurrentHashMap.computeIfAbsent(ConcurrentHashMap.java:1740) ~[?:?]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.getTypeForFactoryMethod(AbstractAutowireCapableBeanFactory.java:749) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.determineTargetType(AbstractAutowireCapableBeanFactory.java:682) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.predictBeanType(AbstractAutowireCapableBeanFactory.java:653) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.isFactoryBean(AbstractBeanFactory.java:1676) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doGetBeanNamesForType(DefaultListableBeanFactory.java:562) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.getBeanNamesForType(DefaultListableBeanFactory.java:534) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.boot.autoconfigure.condition.OnBeanCondition.collectBeanNamesForType(OnBeanCondition.java:247) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	at org.springframework.boot.autoconfigure.condition.OnBeanCondition.getBeanNamesForType(OnBeanCondition.java:240) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	at org.springframework.boot.autoconfigure.condition.OnBeanCondition.getBeanNamesForType(OnBeanCondition.java:230) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	at org.springframework.boot.autoconfigure.condition.OnBeanCondition.getMatchingBeans(OnBeanCondition.java:183) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	at org.springframework.boot.autoconfigure.condition.OnBeanCondition.getMatchOutcome(OnBeanCondition.java:158) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	at org.springframework.boot.autoconfigure.condition.SpringBootCondition.matches(SpringBootCondition.java:47) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	... 17 more
+Caused by: java.lang.NoClassDefFoundError: org/springframework/web/servlet/resource/LiteWebJarsResourceResolver
+	at java.base/java.lang.ClassLoader.defineClass1(Native Method) ~[?:?]
+	at java.base/java.lang.ClassLoader.defineClass(ClassLoader.java:1027) ~[?:?]
+	at java.base/java.security.SecureClassLoader.defineClass(SecureClassLoader.java:150) ~[?:?]
+	at java.base/jdk.internal.loader.BuiltinClassLoader.defineClass(BuiltinClassLoader.java:862) ~[?:?]
+	at java.base/jdk.internal.loader.BuiltinClassLoader.findClassOnClassPathOrNull(BuiltinClassLoader.java:760) ~[?:?]
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClassOrNull(BuiltinClassLoader.java:681) ~[?:?]
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:639) ~[?:?]
+	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188) ~[?:?]
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:526) ~[?:?]
+	at java.base/java.lang.Class.getDeclaredMethods0(Native Method) ~[?:?]
+	at java.base/java.lang.Class.privateGetDeclaredMethods(Class.java:3580) ~[?:?]
+	at java.base/java.lang.Class.getDeclaredMethods(Class.java:2678) ~[?:?]
+	at org.springframework.util.ReflectionUtils.getDeclaredMethods(ReflectionUtils.java:465) ~[spring-core-6.1.6.jar:6.1.6]
+	at org.springframework.util.ReflectionUtils.doWithMethods(ReflectionUtils.java:360) ~[spring-core-6.1.6.jar:6.1.6]
+	at org.springframework.util.ReflectionUtils.getUniqueDeclaredMethods(ReflectionUtils.java:417) ~[spring-core-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.lambda$getTypeForFactoryMethod$1(AbstractAutowireCapableBeanFactory.java:750) ~[spring-beans-6.1.6.jar:6.1.6]
+	at java.base/java.util.concurrent.ConcurrentHashMap.computeIfAbsent(ConcurrentHashMap.java:1740) ~[?:?]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.getTypeForFactoryMethod(AbstractAutowireCapableBeanFactory.java:749) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.determineTargetType(AbstractAutowireCapableBeanFactory.java:682) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.predictBeanType(AbstractAutowireCapableBeanFactory.java:653) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.isFactoryBean(AbstractBeanFactory.java:1676) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doGetBeanNamesForType(DefaultListableBeanFactory.java:562) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.getBeanNamesForType(DefaultListableBeanFactory.java:534) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.boot.autoconfigure.condition.OnBeanCondition.collectBeanNamesForType(OnBeanCondition.java:247) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	at org.springframework.boot.autoconfigure.condition.OnBeanCondition.getBeanNamesForType(OnBeanCondition.java:240) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	at org.springframework.boot.autoconfigure.condition.OnBeanCondition.getBeanNamesForType(OnBeanCondition.java:230) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	at org.springframework.boot.autoconfigure.condition.OnBeanCondition.getMatchingBeans(OnBeanCondition.java:183) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	at org.springframework.boot.autoconfigure.condition.OnBeanCondition.getMatchOutcome(OnBeanCondition.java:158) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	at org.springframework.boot.autoconfigure.condition.SpringBootCondition.matches(SpringBootCondition.java:47) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	... 17 more
+Caused by: java.lang.ClassNotFoundException: org.springframework.web.servlet.resource.LiteWebJarsResourceResolver
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:641) ~[?:?]
+	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188) ~[?:?]
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:526) ~[?:?]
+	at java.base/java.lang.ClassLoader.defineClass1(Native Method) ~[?:?]
+	at java.base/java.lang.ClassLoader.defineClass(ClassLoader.java:1027) ~[?:?]
+	at java.base/java.security.SecureClassLoader.defineClass(SecureClassLoader.java:150) ~[?:?]
+	at java.base/jdk.internal.loader.BuiltinClassLoader.defineClass(BuiltinClassLoader.java:862) ~[?:?]
+	at java.base/jdk.internal.loader.BuiltinClassLoader.findClassOnClassPathOrNull(BuiltinClassLoader.java:760) ~[?:?]
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClassOrNull(BuiltinClassLoader.java:681) ~[?:?]
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:639) ~[?:?]
+	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188) ~[?:?]
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:526) ~[?:?]
+	at java.base/java.lang.Class.getDeclaredMethods0(Native Method) ~[?:?]
+	at java.base/java.lang.Class.privateGetDeclaredMethods(Class.java:3580) ~[?:?]
+	at java.base/java.lang.Class.getDeclaredMethods(Class.java:2678) ~[?:?]
+	at org.springframework.util.ReflectionUtils.getDeclaredMethods(ReflectionUtils.java:465) ~[spring-core-6.1.6.jar:6.1.6]
+	at org.springframework.util.ReflectionUtils.doWithMethods(ReflectionUtils.java:360) ~[spring-core-6.1.6.jar:6.1.6]
+	at org.springframework.util.ReflectionUtils.getUniqueDeclaredMethods(ReflectionUtils.java:417) ~[spring-core-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.lambda$getTypeForFactoryMethod$1(AbstractAutowireCapableBeanFactory.java:750) ~[spring-beans-6.1.6.jar:6.1.6]
+	at java.base/java.util.concurrent.ConcurrentHashMap.computeIfAbsent(ConcurrentHashMap.java:1740) ~[?:?]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.getTypeForFactoryMethod(AbstractAutowireCapableBeanFactory.java:749) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.determineTargetType(AbstractAutowireCapableBeanFactory.java:682) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.predictBeanType(AbstractAutowireCapableBeanFactory.java:653) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.isFactoryBean(AbstractBeanFactory.java:1676) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doGetBeanNamesForType(DefaultListableBeanFactory.java:562) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.getBeanNamesForType(DefaultListableBeanFactory.java:534) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.boot.autoconfigure.condition.OnBeanCondition.collectBeanNamesForType(OnBeanCondition.java:247) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	at org.springframework.boot.autoconfigure.condition.OnBeanCondition.getBeanNamesForType(OnBeanCondition.java:240) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	at org.springframework.boot.autoconfigure.condition.OnBeanCondition.getBeanNamesForType(OnBeanCondition.java:230) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	at org.springframework.boot.autoconfigure.condition.OnBeanCondition.getMatchingBeans(OnBeanCondition.java:183) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	at org.springframework.boot.autoconfigure.condition.OnBeanCondition.getMatchOutcome(OnBeanCondition.java:158) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	at org.springframework.boot.autoconfigure.condition.SpringBootCondition.matches(SpringBootCondition.java:47) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	... 17 more
+INFO  | 2026-07-23 13:37:14 | [main] boot.StartupInfoLogger (StartupInfoLogger.java:50) - Starting BankappApplication using Java 21.0.10 with PID 26884 (C:\adv_springboot_ms_july_2026\week1\session4\bankapp_monolith\target\classes started by busyc in C:\adv_springboot_ms_july_2026\week1\session4\bankapp_monolith)
+INFO  | 2026-07-23 13:37:14 | [main] boot.SpringApplication (SpringApplication.java:660) - The following 1 profile is active: "dev"
+INFO  | 2026-07-23 13:37:15 | [main] config.RepositoryConfigurationDelegate (RepositoryConfigurationDelegate.java:143) - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+INFO  | 2026-07-23 13:37:15 | [main] config.RepositoryConfigurationDelegate (RepositoryConfigurationDelegate.java:211) - Finished Spring Data repository scanning in 63 ms. Found 1 JPA repository interface.
+INFO  | 2026-07-23 13:37:16 | [main] tomcat.TomcatWebServer (TomcatWebServer.java:109) - Tomcat initialized with port 8090 (http)
+INFO  | 2026-07-23 13:37:16 | [main] logging.DirectJDKLog (DirectJDKLog.java:173) - Initializing ProtocolHandler ["http-nio-8090"]
+INFO  | 2026-07-23 13:37:16 | [main] logging.DirectJDKLog (DirectJDKLog.java:173) - Starting service [Tomcat]
+INFO  | 2026-07-23 13:37:16 | [main] logging.DirectJDKLog (DirectJDKLog.java:173) - Starting Servlet engine: [Apache Tomcat/10.1.20]
+INFO  | 2026-07-23 13:37:16 | [main] logging.DirectJDKLog (DirectJDKLog.java:173) - Initializing Spring embedded WebApplicationContext
+INFO  | 2026-07-23 13:37:16 | [main] context.ServletWebServerApplicationContext (ServletWebServerApplicationContext.java:296) - Root WebApplicationContext: initialization completed in 1847 ms
+INFO  | 2026-07-23 13:37:16 | [main] hikari.HikariDataSource (HikariDataSource.java:110) - HikariPool-1 - Starting...
+INFO  | 2026-07-23 13:37:16 | [main] pool.HikariPool (HikariPool.java:565) - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
+INFO  | 2026-07-23 13:37:16 | [main] hikari.HikariDataSource (HikariDataSource.java:123) - HikariPool-1 - Start completed.
+INFO  | 2026-07-23 13:37:16 | [main] h2.H2ConsoleAutoConfiguration (H2ConsoleAutoConfiguration.java:88) - H2 console available at '/h2'. Database available at 'jdbc:h2:mem:testdb'
+INFO  | 2026-07-23 13:37:17 | [main] persistenceunit.SpringPersistenceUnitInfo (SpringPersistenceUnitInfo.java:87) - No LoadTimeWeaver setup: ignoring JPA class transformer
+INFO  | 2026-07-23 13:37:17 | [main] jpa.AbstractEntityManagerFactoryBean (AbstractEntityManagerFactoryBean.java:437) - Initialized JPA EntityManagerFactory for persistence unit 'default'
+INFO  | 2026-07-23 13:37:18 | [main] query.QueryEnhancerFactory (QueryEnhancerFactory.java:49) - Hibernate is in classpath; If applicable, HQL parser will be used.
+WARN  | 2026-07-23 13:37:18 | [main] jpa.JpaBaseConfiguration$JpaWebConfiguration (JpaBaseConfiguration.java:232) - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+DEBUG | 2026-07-23 13:37:18 | [main] handler.AbstractHandlerMethodMapping (AbstractHandlerMethodMapping.java:366) - 13 mappings in 'requestMappingHandlerMapping'
+DEBUG | 2026-07-23 13:37:18 | [main] handler.SimpleUrlHandlerMapping (SimpleUrlHandlerMapping.java:187) - Patterns [/webjars/**, /**, /swagger-ui*/*swagger-initializer.js, /swagger-ui*/**] in 'resourceHandlerMapping'
+DEBUG | 2026-07-23 13:37:18 | [main] annotation.RequestMappingHandlerAdapter (RequestMappingHandlerAdapter.java:634) - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+DEBUG | 2026-07-23 13:37:18 | [main] annotation.ExceptionHandlerExceptionResolver (ExceptionHandlerExceptionResolver.java:305) - ControllerAdvice beans: 2 @ExceptionHandler, 1 ResponseBodyAdvice
+INFO  | 2026-07-23 13:37:19 | [main] logging.DirectJDKLog (DirectJDKLog.java:173) - Starting ProtocolHandler ["http-nio-8090"]
+INFO  | 2026-07-23 13:37:19 | [main] tomcat.TomcatWebServer (TomcatWebServer.java:241) - Tomcat started on port 8090 (http) with context path '/bankapp'
+INFO  | 2026-07-23 13:37:19 | [main] boot.StartupInfoLogger (StartupInfoLogger.java:56) - Started BankappApplication in 5.052 seconds (process running for 6.336)
+INFO  | 2026-07-23 13:37:19 | [main] aspect.LoggingAspect (LoggingAspect.java:21) - Method create completed in 30 ms
+INFO  | 2026-07-23 13:37:19 | [main] aspect.LoggingAspect (LoggingAspect.java:21) - Method create completed in 0 ms
+INFO  | 2026-07-23 13:37:19 | [main] aspect.LoggingAspect (LoggingAspect.java:21) - Method findAll completed in 52 ms
+INFO  | 2026-07-23 13:37:51 | [http-nio-8090-exec-1] logging.DirectJDKLog (DirectJDKLog.java:173) - Initializing Spring DispatcherServlet 'dispatcherServlet'
+INFO  | 2026-07-23 13:37:51 | [http-nio-8090-exec-1] servlet.FrameworkServlet (FrameworkServlet.java:532) - Initializing Servlet 'dispatcherServlet'
+DEBUG | 2026-07-23 13:37:51 | [http-nio-8090-exec-1] servlet.DispatcherServlet (DispatcherServlet.java:533) - Detected StandardServletMultipartResolver
+DEBUG | 2026-07-23 13:37:51 | [http-nio-8090-exec-1] servlet.DispatcherServlet (DispatcherServlet.java:557) - Detected AcceptHeaderLocaleResolver
+DEBUG | 2026-07-23 13:37:51 | [http-nio-8090-exec-1] servlet.DispatcherServlet (DispatcherServlet.java:583) - Detected FixedThemeResolver
+DEBUG | 2026-07-23 13:37:51 | [http-nio-8090-exec-1] servlet.DispatcherServlet (DispatcherServlet.java:733) - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@70376c6
+DEBUG | 2026-07-23 13:37:51 | [http-nio-8090-exec-1] servlet.DispatcherServlet (DispatcherServlet.java:797) - Detected org.springframework.web.servlet.support.SessionFlashMapManager@377a1763
+DEBUG | 2026-07-23 13:37:51 | [http-nio-8090-exec-1] servlet.FrameworkServlet (FrameworkServlet.java:549) - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+INFO  | 2026-07-23 13:37:51 | [http-nio-8090-exec-1] servlet.FrameworkServlet (FrameworkServlet.java:554) - Completed initialization in 4 ms
+DEBUG | 2026-07-23 13:37:51 | [http-nio-8090-exec-1] log.LogFormatUtils (LogFormatUtils.java:120) - GET "/bankapp/api-docs", parameters={}
+DEBUG | 2026-07-23 13:37:51 | [http-nio-8090-exec-1] handler.AbstractHandlerMapping (AbstractHandlerMapping.java:531) - Mapped to org.springdoc.webmvc.api.OpenApiWebMvcResource#openapiJson(HttpServletRequest, String, Locale)
+INFO  | 2026-07-23 13:37:51 | [http-nio-8090-exec-1] api.AbstractOpenApiResource (AbstractOpenApiResource.java:390) - Init duration for springdoc-openapi is: 570 ms
+DEBUG | 2026-07-23 13:37:51 | [http-nio-8090-exec-1] annotation.AbstractMessageConverterMethodProcessor (AbstractMessageConverterMethodProcessor.java:275) - Using 'application/json;q=0.8', given [text/html, application/xhtml+xml, image/avif, image/webp, image/apng, application/xml;q=0.9, */*;q=0.8] and supported [application/json]
+DEBUG | 2026-07-23 13:37:51 | [http-nio-8090-exec-1] log.LogFormatUtils (LogFormatUtils.java:120) - Writing [{123, 34, 111, 112, 101, 110, 97, 112, 105, 34, 58, 34, 51, 46, 48, 46, 49, 34, 44, 34, 105, 110, 10 (truncated)...]
+DEBUG | 2026-07-23 13:37:51 | [http-nio-8090-exec-1] servlet.FrameworkServlet (FrameworkServlet.java:1138) - Completed 200 OK
+DEBUG | 2026-07-23 13:38:12 | [http-nio-8090-exec-2] log.LogFormatUtils (LogFormatUtils.java:120) - GET "/bankapp/api-docs", parameters={}
+DEBUG | 2026-07-23 13:38:12 | [http-nio-8090-exec-2] handler.AbstractHandlerMapping (AbstractHandlerMapping.java:531) - Mapped to org.springdoc.webmvc.api.OpenApiWebMvcResource#openapiJson(HttpServletRequest, String, Locale)
+DEBUG | 2026-07-23 13:38:12 | [http-nio-8090-exec-2] annotation.AbstractMessageConverterMethodProcessor (AbstractMessageConverterMethodProcessor.java:275) - Using 'application/json;q=0.8', given [text/html, application/xhtml+xml, image/avif, image/webp, image/apng, application/xml;q=0.9, */*;q=0.8] and supported [application/json]
+DEBUG | 2026-07-23 13:38:12 | [http-nio-8090-exec-2] log.LogFormatUtils (LogFormatUtils.java:120) - Writing [{123, 34, 111, 112, 101, 110, 97, 112, 105, 34, 58, 34, 51, 46, 48, 46, 49, 34, 44, 34, 105, 110, 10 (truncated)...]
+DEBUG | 2026-07-23 13:38:12 | [http-nio-8090-exec-2] servlet.FrameworkServlet (FrameworkServlet.java:1138) - Completed 200 OK
+DEBUG | 2026-07-23 13:38:23 | [http-nio-8090-exec-7] log.LogFormatUtils (LogFormatUtils.java:120) - GET "/bankapp/swagger-ui.html", parameters={}
+DEBUG | 2026-07-23 13:38:23 | [http-nio-8090-exec-7] handler.AbstractHandlerMapping (AbstractHandlerMapping.java:531) - Mapped to org.springdoc.webmvc.ui.SwaggerWelcomeWebMvc#redirectToUi(HttpServletRequest)
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-7] annotation.AbstractMessageConverterMethodProcessor (AbstractMessageConverterMethodProcessor.java:275) - Using 'application/xhtml+xml', given [text/html, application/xhtml+xml, image/avif, image/webp, image/apng, application/xml;q=0.9, */*;q=0.8] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-7] annotation.AbstractMessageConverterMethodProcessor (AbstractMessageConverterMethodProcessor.java:305) - Nothing to write: null body
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-7] servlet.FrameworkServlet (FrameworkServlet.java:1138) - Completed 302 FOUND
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-4] log.LogFormatUtils (LogFormatUtils.java:120) - GET "/bankapp/swagger-ui/index.html", parameters={}
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-4] handler.AbstractHandlerMapping (AbstractHandlerMapping.java:531) - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-4] servlet.FrameworkServlet (FrameworkServlet.java:1138) - Completed 200 OK
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-5] log.LogFormatUtils (LogFormatUtils.java:120) - GET "/bankapp/swagger-ui/swagger-ui.css", parameters={}
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-5] handler.AbstractHandlerMapping (AbstractHandlerMapping.java:531) - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-3] log.LogFormatUtils (LogFormatUtils.java:120) - GET "/bankapp/swagger-ui/swagger-ui-bundle.js", parameters={}
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-8] log.LogFormatUtils (LogFormatUtils.java:120) - GET "/bankapp/swagger-ui/swagger-ui-standalone-preset.js", parameters={}
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-6] log.LogFormatUtils (LogFormatUtils.java:120) - GET "/bankapp/swagger-ui/index.css", parameters={}
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-3] handler.AbstractHandlerMapping (AbstractHandlerMapping.java:531) - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-9] log.LogFormatUtils (LogFormatUtils.java:120) - GET "/bankapp/swagger-ui/swagger-initializer.js", parameters={}
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-6] handler.AbstractHandlerMapping (AbstractHandlerMapping.java:531) - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-8] handler.AbstractHandlerMapping (AbstractHandlerMapping.java:531) - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-9] handler.AbstractHandlerMapping (AbstractHandlerMapping.java:531) - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-6] servlet.FrameworkServlet (FrameworkServlet.java:1138) - Completed 200 OK
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-5] servlet.FrameworkServlet (FrameworkServlet.java:1138) - Completed 200 OK
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-8] servlet.FrameworkServlet (FrameworkServlet.java:1138) - Completed 200 OK
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-9] servlet.FrameworkServlet (FrameworkServlet.java:1138) - Completed 200 OK
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-3] servlet.FrameworkServlet (FrameworkServlet.java:1138) - Completed 200 OK
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-10] log.LogFormatUtils (LogFormatUtils.java:120) - GET "/bankapp/api-docs/swagger-config", parameters={}
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-1] log.LogFormatUtils (LogFormatUtils.java:120) - GET "/bankapp/swagger-ui/favicon-32x32.png", parameters={}
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-10] handler.AbstractHandlerMapping (AbstractHandlerMapping.java:531) - Mapped to org.springdoc.webmvc.ui.SwaggerConfigResource#openapiJson(HttpServletRequest)
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-1] handler.AbstractHandlerMapping (AbstractHandlerMapping.java:531) - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-10] annotation.AbstractMessageConverterMethodProcessor (AbstractMessageConverterMethodProcessor.java:275) - Using 'application/json', given [*/*] and supported [application/json]
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-10] log.LogFormatUtils (LogFormatUtils.java:120) - Writing [{configUrl=/bankapp/api-docs/swagger-config, oauth2RedirectUrl=http://localhost:8090/bankapp/swagger (truncated)...]
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-1] servlet.FrameworkServlet (FrameworkServlet.java:1138) - Completed 200 OK
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-10] servlet.FrameworkServlet (FrameworkServlet.java:1138) - Completed 200 OK
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-2] log.LogFormatUtils (LogFormatUtils.java:120) - GET "/bankapp/api-docs", parameters={}
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-2] handler.AbstractHandlerMapping (AbstractHandlerMapping.java:531) - Mapped to org.springdoc.webmvc.api.OpenApiWebMvcResource#openapiJson(HttpServletRequest, String, Locale)
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-2] annotation.AbstractMessageConverterMethodProcessor (AbstractMessageConverterMethodProcessor.java:275) - Using 'application/json', given [application/json, */*] and supported [application/json]
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-2] log.LogFormatUtils (LogFormatUtils.java:120) - Writing [{123, 34, 111, 112, 101, 110, 97, 112, 105, 34, 58, 34, 51, 46, 48, 46, 49, 34, 44, 34, 105, 110, 10 (truncated)...]
+DEBUG | 2026-07-23 13:38:24 | [http-nio-8090-exec-2] servlet.FrameworkServlet (FrameworkServlet.java:1138) - Completed 200 OK
+DEBUG | 2026-07-23 13:39:01 | [http-nio-8090-exec-7] log.LogFormatUtils (LogFormatUtils.java:120) - GET "/bankapp/api/v1/accounts", parameters={}
+DEBUG | 2026-07-23 13:39:01 | [http-nio-8090-exec-7] handler.AbstractHandlerMapping (AbstractHandlerMapping.java:531) - Mapped to com.bankapp.controller.AccountCrudController#getAll()
+INFO  | 2026-07-23 13:39:01 | [http-nio-8090-exec-7] aspect.LoggingAspect (LoggingAspect.java:21) - Method findAll completed in 3 ms
+DEBUG | 2026-07-23 13:39:01 | [http-nio-8090-exec-7] annotation.AbstractMessageConverterMethodProcessor (AbstractMessageConverterMethodProcessor.java:275) - Using 'application/json', given [application/json] and supported [application/json]
+DEBUG | 2026-07-23 13:39:01 | [http-nio-8090-exec-7] log.LogFormatUtils (LogFormatUtils.java:120) - Writing [[AccountDto(id=1, accountHolderName=Raj, balance=1000.00), AccountDto(id=2, accountHolderName=Ekta,  (truncated)...]
+DEBUG | 2026-07-23 13:39:01 | [http-nio-8090-exec-7] servlet.FrameworkServlet (FrameworkServlet.java:1138) - Completed 200 OK
+DEBUG | 2026-07-23 13:39:02 | [http-nio-8090-exec-4] log.LogFormatUtils (LogFormatUtils.java:120) - GET "/bankapp/api/v1/accounts", parameters={}
+DEBUG | 2026-07-23 13:39:02 | [http-nio-8090-exec-4] handler.AbstractHandlerMapping (AbstractHandlerMapping.java:531) - Mapped to com.bankapp.controller.AccountCrudController#getAll()
+INFO  | 2026-07-23 13:39:02 | [http-nio-8090-exec-4] aspect.LoggingAspect (LoggingAspect.java:21) - Method findAll completed in 4 ms
+DEBUG | 2026-07-23 13:39:02 | [http-nio-8090-exec-4] annotation.AbstractMessageConverterMethodProcessor (AbstractMessageConverterMethodProcessor.java:275) - Using 'application/json', given [application/json] and supported [application/json]
+DEBUG | 2026-07-23 13:39:02 | [http-nio-8090-exec-4] log.LogFormatUtils (LogFormatUtils.java:120) - Writing [[AccountDto(id=1, accountHolderName=Raj, balance=1000.00), AccountDto(id=2, accountHolderName=Ekta,  (truncated)...]
+DEBUG | 2026-07-23 13:39:02 | [http-nio-8090-exec-4] servlet.FrameworkServlet (FrameworkServlet.java:1138) - Completed 200 OK
+INFO  | 2026-07-23 13:44:24 | [SpringApplicationShutdownHook] jpa.AbstractEntityManagerFactoryBean (AbstractEntityManagerFactoryBean.java:650) - Closing JPA EntityManagerFactory for persistence unit 'default'
+INFO  | 2026-07-23 13:44:24 | [SpringApplicationShutdownHook] hikari.HikariDataSource (HikariDataSource.java:350) - HikariPool-1 - Shutdown initiated...
+INFO  | 2026-07-23 13:44:24 | [SpringApplicationShutdownHook] hikari.HikariDataSource (HikariDataSource.java:352) - HikariPool-1 - Shutdown completed.
+INFO  | 2026-07-23 13:44:29 | [main] boot.StartupInfoLogger (StartupInfoLogger.java:50) - Starting BankappApplication using Java 21.0.10 with PID 13888 (C:\adv_springboot_ms_july_2026\week1\session4\bankapp_monolith\target\classes started by busyc in C:\adv_springboot_ms_july_2026\week1\session4\bankapp_monolith)
+INFO  | 2026-07-23 13:44:29 | [main] boot.SpringApplication (SpringApplication.java:660) - The following 1 profile is active: "dev"
+INFO  | 2026-07-23 13:44:30 | [main] config.RepositoryConfigurationDelegate (RepositoryConfigurationDelegate.java:143) - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+INFO  | 2026-07-23 13:44:30 | [main] config.RepositoryConfigurationDelegate (RepositoryConfigurationDelegate.java:211) - Finished Spring Data repository scanning in 67 ms. Found 1 JPA repository interface.
+INFO  | 2026-07-23 13:44:31 | [main] tomcat.TomcatWebServer (TomcatWebServer.java:109) - Tomcat initialized with port 8090 (http)
+INFO  | 2026-07-23 13:44:31 | [main] logging.DirectJDKLog (DirectJDKLog.java:173) - Initializing ProtocolHandler ["http-nio-8090"]
+INFO  | 2026-07-23 13:44:31 | [main] logging.DirectJDKLog (DirectJDKLog.java:173) - Starting service [Tomcat]
+INFO  | 2026-07-23 13:44:31 | [main] logging.DirectJDKLog (DirectJDKLog.java:173) - Starting Servlet engine: [Apache Tomcat/10.1.20]
+INFO  | 2026-07-23 13:44:31 | [main] logging.DirectJDKLog (DirectJDKLog.java:173) - Initializing Spring embedded WebApplicationContext
+INFO  | 2026-07-23 13:44:31 | [main] context.ServletWebServerApplicationContext (ServletWebServerApplicationContext.java:296) - Root WebApplicationContext: initialization completed in 2124 ms
+INFO  | 2026-07-23 13:44:31 | [main] hikari.HikariDataSource (HikariDataSource.java:110) - HikariPool-1 - Starting...
+INFO  | 2026-07-23 13:44:32 | [main] pool.HikariPool (HikariPool.java:565) - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
+INFO  | 2026-07-23 13:44:32 | [main] hikari.HikariDataSource (HikariDataSource.java:123) - HikariPool-1 - Start completed.
+INFO  | 2026-07-23 13:44:32 | [main] h2.H2ConsoleAutoConfiguration (H2ConsoleAutoConfiguration.java:88) - H2 console available at '/h2'. Database available at 'jdbc:h2:mem:testdb'
+INFO  | 2026-07-23 13:44:32 | [main] persistenceunit.SpringPersistenceUnitInfo (SpringPersistenceUnitInfo.java:87) - No LoadTimeWeaver setup: ignoring JPA class transformer
+INFO  | 2026-07-23 13:44:33 | [main] jpa.AbstractEntityManagerFactoryBean (AbstractEntityManagerFactoryBean.java:437) - Initialized JPA EntityManagerFactory for persistence unit 'default'
+INFO  | 2026-07-23 13:44:33 | [main] query.QueryEnhancerFactory (QueryEnhancerFactory.java:49) - Hibernate is in classpath; If applicable, HQL parser will be used.
+WARN  | 2026-07-23 13:44:34 | [main] jpa.JpaBaseConfiguration$JpaWebConfiguration (JpaBaseConfiguration.java:232) - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+DEBUG | 2026-07-23 13:44:34 | [main] handler.AbstractHandlerMethodMapping (AbstractHandlerMethodMapping.java:366) - 13 mappings in 'requestMappingHandlerMapping'
+DEBUG | 2026-07-23 13:44:34 | [main] handler.SimpleUrlHandlerMapping (SimpleUrlHandlerMapping.java:187) - Patterns [/webjars/**, /**, /swagger-ui*/*swagger-initializer.js, /swagger-ui*/**] in 'resourceHandlerMapping'
+DEBUG | 2026-07-23 13:44:34 | [main] annotation.RequestMappingHandlerAdapter (RequestMappingHandlerAdapter.java:634) - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+DEBUG | 2026-07-23 13:44:34 | [main] annotation.ExceptionHandlerExceptionResolver (ExceptionHandlerExceptionResolver.java:305) - ControllerAdvice beans: 2 @ExceptionHandler, 1 ResponseBodyAdvice
+INFO  | 2026-07-23 13:44:34 | [main] logging.DirectJDKLog (DirectJDKLog.java:173) - Starting ProtocolHandler ["http-nio-8090"]
+INFO  | 2026-07-23 13:44:34 | [main] tomcat.TomcatWebServer (TomcatWebServer.java:241) - Tomcat started on port 8090 (http) with context path '/bankapp'
+INFO  | 2026-07-23 13:44:34 | [main] boot.StartupInfoLogger (StartupInfoLogger.java:56) - Started BankappApplication in 5.858 seconds (process running for 6.723)
+INFO  | 2026-07-23 13:44:34 | [main] aspect.LoggingAspect (LoggingAspect.java:21) - Method create completed in 56 ms
+INFO  | 2026-07-23 13:44:34 | [main] aspect.LoggingAspect (LoggingAspect.java:21) - Method create completed in 1 ms
+INFO  | 2026-07-23 13:44:35 | [main] aspect.LoggingAspect (LoggingAspect.java:21) - Method findAll completed in 104 ms
+INFO  | 2026-07-23 13:44:45 | [http-nio-8090-exec-1] logging.DirectJDKLog (DirectJDKLog.java:173) - Initializing Spring DispatcherServlet 'dispatcherServlet'
+INFO  | 2026-07-23 13:44:45 | [http-nio-8090-exec-1] servlet.FrameworkServlet (FrameworkServlet.java:532) - Initializing Servlet 'dispatcherServlet'
+DEBUG | 2026-07-23 13:44:45 | [http-nio-8090-exec-1] servlet.DispatcherServlet (DispatcherServlet.java:533) - Detected StandardServletMultipartResolver
+DEBUG | 2026-07-23 13:44:45 | [http-nio-8090-exec-1] servlet.DispatcherServlet (DispatcherServlet.java:557) - Detected AcceptHeaderLocaleResolver
+DEBUG | 2026-07-23 13:44:45 | [http-nio-8090-exec-1] servlet.DispatcherServlet (DispatcherServlet.java:583) - Detected FixedThemeResolver
+DEBUG | 2026-07-23 13:44:45 | [http-nio-8090-exec-1] servlet.DispatcherServlet (DispatcherServlet.java:733) - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@1bef1304
+DEBUG | 2026-07-23 13:44:45 | [http-nio-8090-exec-1] servlet.DispatcherServlet (DispatcherServlet.java:797) - Detected org.springframework.web.servlet.support.SessionFlashMapManager@35cf7e98
+DEBUG | 2026-07-23 13:44:45 | [http-nio-8090-exec-1] servlet.FrameworkServlet (FrameworkServlet.java:549) - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+INFO  | 2026-07-23 13:44:45 | [http-nio-8090-exec-1] servlet.FrameworkServlet (FrameworkServlet.java:554) - Completed initialization in 4 ms
+DEBUG | 2026-07-23 13:44:45 | [http-nio-8090-exec-1] log.LogFormatUtils (LogFormatUtils.java:120) - GET "/bankapp/swagger-ui/index.html", parameters={}
+DEBUG | 2026-07-23 13:44:45 | [http-nio-8090-exec-1] handler.AbstractHandlerMapping (AbstractHandlerMapping.java:531) - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+DEBUG | 2026-07-23 13:44:45 | [http-nio-8090-exec-1] servlet.FrameworkServlet (FrameworkServlet.java:1138) - Completed 304 NOT_MODIFIED
+DEBUG | 2026-07-23 13:44:45 | [http-nio-8090-exec-2] log.LogFormatUtils (LogFormatUtils.java:120) - GET "/bankapp/swagger-ui/swagger-initializer.js", parameters={}
+DEBUG | 2026-07-23 13:44:45 | [http-nio-8090-exec-2] handler.AbstractHandlerMapping (AbstractHandlerMapping.java:531) - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+DEBUG | 2026-07-23 13:44:45 | [http-nio-8090-exec-2] servlet.FrameworkServlet (FrameworkServlet.java:1138) - Completed 200 OK
+DEBUG | 2026-07-23 13:44:45 | [http-nio-8090-exec-3] log.LogFormatUtils (LogFormatUtils.java:120) - GET "/bankapp/api-docs/swagger-config", parameters={}
+DEBUG | 2026-07-23 13:44:45 | [http-nio-8090-exec-3] handler.AbstractHandlerMapping (AbstractHandlerMapping.java:531) - Mapped to org.springdoc.webmvc.ui.SwaggerConfigResource#openapiJson(HttpServletRequest)
+DEBUG | 2026-07-23 13:44:45 | [http-nio-8090-exec-3] annotation.AbstractMessageConverterMethodProcessor (AbstractMessageConverterMethodProcessor.java:275) - Using 'application/json', given [*/*] and supported [application/json]
+DEBUG | 2026-07-23 13:44:45 | [http-nio-8090-exec-3] log.LogFormatUtils (LogFormatUtils.java:120) - Writing [{configUrl=/bankapp/api-docs/swagger-config, oauth2RedirectUrl=http://localhost:8090/bankapp/swagger (truncated)...]
+DEBUG | 2026-07-23 13:44:45 | [http-nio-8090-exec-3] servlet.FrameworkServlet (FrameworkServlet.java:1138) - Completed 200 OK
+DEBUG | 2026-07-23 13:44:45 | [http-nio-8090-exec-5] log.LogFormatUtils (LogFormatUtils.java:120) - GET "/bankapp/api-docs", parameters={}
+DEBUG | 2026-07-23 13:44:45 | [http-nio-8090-exec-5] handler.AbstractHandlerMapping (AbstractHandlerMapping.java:531) - Mapped to org.springdoc.webmvc.api.OpenApiWebMvcResource#openapiJson(HttpServletRequest, String, Locale)
+INFO  | 2026-07-23 13:44:46 | [http-nio-8090-exec-5] api.AbstractOpenApiResource (AbstractOpenApiResource.java:390) - Init duration for springdoc-openapi is: 599 ms
+DEBUG | 2026-07-23 13:44:46 | [http-nio-8090-exec-5] annotation.AbstractMessageConverterMethodProcessor (AbstractMessageConverterMethodProcessor.java:275) - Using 'application/json', given [application/json, */*] and supported [application/json]
+DEBUG | 2026-07-23 13:44:46 | [http-nio-8090-exec-5] log.LogFormatUtils (LogFormatUtils.java:120) - Writing [{123, 34, 111, 112, 101, 110, 97, 112, 105, 34, 58, 34, 51, 46, 48, 46, 49, 34, 44, 34, 105, 110, 10 (truncated)...]
+DEBUG | 2026-07-23 13:44:46 | [http-nio-8090-exec-5] servlet.FrameworkServlet (FrameworkServlet.java:1138) - Completed 200 OK
+DEBUG | 2026-07-23 13:45:00 | [http-nio-8090-exec-4] log.LogFormatUtils (LogFormatUtils.java:120) - GET "/bankapp/api-docs", parameters={}
+DEBUG | 2026-07-23 13:45:00 | [http-nio-8090-exec-4] handler.AbstractHandlerMapping (AbstractHandlerMapping.java:531) - Mapped to org.springdoc.webmvc.api.OpenApiWebMvcResource#openapiJson(HttpServletRequest, String, Locale)
+DEBUG | 2026-07-23 13:45:00 | [http-nio-8090-exec-4] annotation.AbstractMessageConverterMethodProcessor (AbstractMessageConverterMethodProcessor.java:275) - Using 'application/json;q=0.8', given [text/html, application/xhtml+xml, image/avif, image/webp, image/apng, application/xml;q=0.9, */*;q=0.8] and supported [application/json]
+DEBUG | 2026-07-23 13:45:00 | [http-nio-8090-exec-4] log.LogFormatUtils (LogFormatUtils.java:120) - Writing [{123, 34, 111, 112, 101, 110, 97, 112, 105, 34, 58, 34, 51, 46, 48, 46, 49, 34, 44, 34, 105, 110, 10 (truncated)...]
+DEBUG | 2026-07-23 13:45:00 | [http-nio-8090-exec-4] servlet.FrameworkServlet (FrameworkServlet.java:1138) - Completed 200 OK
