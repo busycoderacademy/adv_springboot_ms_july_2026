@@ -25,7 +25,9 @@ public class Department {
 	private String detpName;
 	
 	@BatchSize(size=2)
-	@OneToMany(mappedBy = "department", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "department",
+			fetch = FetchType.LAZY,
+			cascade = CascadeType.ALL)
 	private List<Employee> employees = new ArrayList<Employee>();
 
 	public Department(String detpName) {

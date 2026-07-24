@@ -12,6 +12,9 @@
         <option value="$PROJECT_DIR$/jpa-04-one-2-one-bi/pom.xml" />
         <option value="$PROJECT_DIR$/jpa-04-element-collection/pom.xml" />
         <option value="$PROJECT_DIR$/jpa-04-one-2-one-uni/pom.xml" />
+        <option value="$PROJECT_DIR$/jpa-05-one-2-many/pom.xml" />
+        <option value="$PROJECT_DIR$/jpa-06-m2m/pom.xml" />
+        <option value="$PROJECT_DIR$/jpa-07-inh-mapping/pom.xml" />
       </list>
     </option>
   </component>

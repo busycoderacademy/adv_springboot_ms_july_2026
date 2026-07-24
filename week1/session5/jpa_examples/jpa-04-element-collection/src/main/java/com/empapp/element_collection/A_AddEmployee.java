@@ -22,7 +22,6 @@ public class A_AddEmployee {
 
         try{
             tx.begin();
-
             Employee employee1=new Employee("raj",6700,"IT");
             employee1.addEmail("raj@gmail.com");
             employee1.addEmail("raj@hotmail.com");

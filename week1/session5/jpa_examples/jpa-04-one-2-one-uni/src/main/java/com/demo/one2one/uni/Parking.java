@@ -2,7 +2,7 @@ package com.demo.one2one.uni;
 
 import jakarta.persistence.*;
 @Entity
-@Table(name = "parking_table")
+@Table(name = "parking_table_1")
 public class Parking {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

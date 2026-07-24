@@ -2,13 +2,14 @@ package com.demo.one2one.bi;
 
 import jakarta.persistence.*;
 @Entity
-@Table(name = "parking_table")
+@Table(name = "parking_table_2")
 public class Parking {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int partingId;
 	private String parkingLocation;
 
+	//@OneToOne(cascade = CascadeType.ALL)
 	@OneToOne(mappedBy = "parking", cascade = CascadeType.ALL)
 	private Employee employee;
 

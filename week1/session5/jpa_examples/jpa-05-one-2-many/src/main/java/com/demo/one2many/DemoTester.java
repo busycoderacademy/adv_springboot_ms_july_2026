@@ -48,7 +48,7 @@ public class DemoTester {
 
 		EntityManager em = emf.createEntityManager();// getCurrentSession (web application spring)
 
-//		em.getTransaction().begin();
+	//	em.getTransaction().begin();
 
 //		Department department = em.find(Department.class, 1);
 //		em.remove(department);// all the emp of that dep shold be deleted
@@ -57,7 +57,7 @@ public class DemoTester {
 //		em.persist(department2);
 //		em.persist(department3);
 //		em.persist(department4);
-
+//
 //		em.persist(employee1);
 //		em.persist(employee2);
 //		em.persist(employee3);
@@ -65,23 +65,23 @@ public class DemoTester {
 //		em.persist(employee5);
 //		em.persist(employee6);
 //		em.persist(employee7);
-
+//
 //		em.getTransaction().commit();
 
-		List<Department> departments=em
-				.createQuery("select d from Department d", Department.class)
-				.getResultList();
-
-	//	em.close();
-		System.out.println("*********************");
-		for(Department dept:departments ) {
-			System.out.println("---------------");
-			System.out.println(dept.getDetpName());
-			System.out.println("-------------------");
-			for(Employee e: dept.getEmployees()) {
-				System.out.println(e.getEmpName());
-			}
-		}
+//		List<Department> departments=em
+//				.createQuery("select d from Department d", Department.class)
+//				.getResultList();
+////
+//     	//em.close();
+//		System.out.println("*********************");
+//		for(Department dept:departments ) {
+//			System.out.println("---------------");
+//			System.out.println(dept.getDetpName());
+//			System.out.println("-------------------");
+//			for(Employee e: dept.getEmployees()) {
+//				System.out.println(e.getEmpName());
+//			}
+//		}
 
 		/*
 		 * SELECT d.*, e.* FROM d_table d JOIN e_table e ON d.dept_id = e.dept_id_fk;
@@ -113,7 +113,7 @@ public class DemoTester {
 //				.getResultList();
 //
 
-		em.close();
+		//em.close();
 
 		emf.close();
 

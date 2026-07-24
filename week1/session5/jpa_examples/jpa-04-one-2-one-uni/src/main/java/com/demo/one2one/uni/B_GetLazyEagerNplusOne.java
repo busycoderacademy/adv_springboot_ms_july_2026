@@ -25,16 +25,16 @@ public class B_GetLazyEagerNplusOne {
 //        }
 
         //fetch join : solve N+1 problem==> total Quaries would be 1
-//        List<Parking> parkings=
-//                em.createQuery("from Parking p join fetch p.employee Employee", Parking.class).getResultList();
+        List<Parking> parkings=
+                em.createQuery("from Parking p join fetch p.employee Employee", Parking.class).getResultList();
+//
 ////
-////
-//        System.out.println("---------------------------------");
-//        for(Parking p: parkings){
-//            System.out.println(p);
-//            System.out.println("****************************");
-//            System.out.println(p.getEmployee());
-//        }
+        System.out.println("---------------------------------");
+        for(Parking p: parkings){
+            System.out.println(p);
+            System.out.println("****************************");
+            System.out.println(p.getEmployee());
+        }
 
         em.close();
         emf.close();

@@ -58,7 +58,7 @@ public class DemoTester {
 
 		EntityManager em  = emf.createEntityManager();
 
-//		em.getTransaction().begin();
+		em.getTransaction().begin();
 //
 //		List<Employee> employees=em
 //				.createQuery("select e from Employee e",Employee.class).getResultList();
@@ -67,17 +67,17 @@ public class DemoTester {
 //			System.out.println(e.getEmpName());
 //			System.out.println("No of project : "+ e.getProjects().size());
 //		}
-//		session.save(project1);
-//		session.save(project2);
-//		session.save(project3);
-//		session.save(project4);
-//
-//		session.save(employee1);
-//		session.save(employee2);
-//		session.save(employee3);
-//		session.save(employee4);
-//
-//		em.getTransaction().commit();
+		em.persist(project1);
+		em.persist(project2);
+		em.persist(project3);
+		em.persist(project4);
+
+		em.persist(employee1);
+		em.persist(employee2);
+		em.persist(employee3);
+		em.persist(employee4);
+
+		em.getTransaction().commit();
 
 		em.close();
 		emf.close();

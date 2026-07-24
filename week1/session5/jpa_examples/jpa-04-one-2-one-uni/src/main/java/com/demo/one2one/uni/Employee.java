@@ -3,14 +3,13 @@ package com.demo.one2one.uni;
 import jakarta.persistence.*;
 //owner
 @Entity
-@Table(name = "emp_table")
+@Table(name = "emp_table_1")
 public class Employee {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int empId;
 	private String empName;
-
 
 	public Employee() {}
 	

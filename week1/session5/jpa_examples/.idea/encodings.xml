@@ -17,5 +17,11 @@
     <file url="file://$PROJECT_DIR$/jpa-04-one-2-one-bi/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/jpa-04-one-2-one-uni/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/jpa-04-one-2-one-uni/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jpa-05-one-2-many/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jpa-05-one-2-many/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jpa-06-m2m/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jpa-06-m2m/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jpa-07-inh-mapping/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jpa-07-inh-mapping/src/main/resources" charset="UTF-8" />
   </component>
 </project>

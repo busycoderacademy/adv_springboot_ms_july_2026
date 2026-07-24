@@ -3,7 +3,7 @@ package com.demo.one2one.bi;
 import jakarta.persistence.*;
 //owner
 @Entity
-@Table(name = "emp_table")
+@Table(name = "emp_table_2")
 public class Employee {
 
 	@Id
