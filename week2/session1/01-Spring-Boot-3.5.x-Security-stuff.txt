@@ -1,0 +1,1418 @@
+Spring boot security 3.5.x cheetsheet:
+--------------------------------------
+* Spring security hello world
+* Spring security with custom  UserDetailsService and filter chain
+* Spring security with databse and with DaoAuthenticationProvider
+* Method level Security
+	spring provide u fitler based security
+	
+	method level security: few annotation, sec line of defence ot the url based sec
+	@PreAuthorized
+	@PostAuthorized
+	
+	
+* Exception handler: used to give customized error message to  the user
+	AuthenticationEntryPoint: 401
+	AccessDeniedHandler: 403
+* JWT security
+
+
+
+step 1: create new project bankapp with dependencies
+	web lombok security jpa mysql actuator
+	
+step 2: property file 
+---------------------
+server:
+  port: 8090
+  servlet:
+    context-path: /bankapp
+spring:
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      ddl-auto: update
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/demoms
+    password: root
+    username: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG
+
+
+with h2 database:
+---------------
+spring.application.name=secdemo1
+spring.main.allow-circular-references=true
+spring.h2.console.enabled=true
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=password
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+# Custom H2 Console URL
+spring.h2.console.path=/h2
+
+spring.jpa.hibernate.ddl-auto=update
+
+logging.level.org.springframework.web: DEBUG
+logging.level.org.hibernate: ERROR
+
+
+
+step 3: write a simple controller with some endpoints
+--------------------------------------------
+@RestController
+public class HelloController {
+    @GetMapping(path = "home")
+    public String home(){
+        return "home";
+    }
+    @GetMapping(path = "admin")
+    public String admin(){
+        return "admin";
+    }
+
+    @GetMapping(path = "mgr")
+    public String mgr(){
+        return "mgr";
+    }
+
+    @GetMapping(path = "clerk")
+    public String clerk(){
+        return "clerk";
+    }
+}
+
+
+
+
+step 4: customization spring security
+---------------------------------------
+
+@Component
+@EnableWebSecurity
+@EnableMethodSecurity
+public class SecConfig {
+    @Bean
+    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder){
+        UserDetails raj= User.withUsername("raj")
+                .password(passwordEncoder.encode("raj123"))
+                .roles("ADMIN")
+                .build();
+        UserDetails ekta= User.withUsername("ekta")
+                .password(passwordEncoder.encode("ekta123"))
+                .roles("MGR")
+                .build();
+
+        UserDetails gun= User.withUsername("gun")
+                .password(passwordEncoder.encode("gun123"))
+                .roles("CLERK")
+                .build();
+        return new InMemoryUserDetailsManager(raj,ekta, gun);
+
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(registry -> registry.anyRequest().authenticated())
+                .httpBasic(Customizer.withDefaults())
+                .sessionManagement(httpSecuritySessionManagementConfigurer ->
+                        httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        return http.build();
+    }
+  
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
+}
+
+
+Authorization:
+----------------
+
+ @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
+				
+                .authorizeHttpRequests(registry ->
+                        registry.requestMatchers("/admin/**").hasAnyRole("ADMIN")
+                                .requestMatchers("/mgr/**").hasAnyRole("ADMIN","MGR")
+                                .requestMatchers("/clerk/**").hasAnyRole("ADMIN","MGR","CLERK")
+                                .requestMatchers("/home/**").permitAll()
+                                .anyRequest().authenticated()
+                )
+                .httpBasic(Customizer.withDefaults())
+                .sessionManagement(httpSecuritySessionManagementConfigurer ->
+                        httpSecuritySessionManagementConfigurer.
+						sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        return http.build();
+    }
+
+
+
+
+Spring Security Filters
+-------------------------
+Spring Security internally runs multiple filters in a chain. 
+The exact filters and their order are internal and may change, 
+so we configure behavior instead of relying on filter names. 
+
+3 most important filters 
+-------------------------------------------
+UsernamePasswordAuthenticationFilter		Login happens here
+ExceptionTranslationFilter					401 / 403 handling
+AuthorizationFilter							Final access decision
+
+
+
+Simplest possible way to plug a filter just after UsernamePasswordAuthenticationFilter, 
+--------------------------------------------------------------------------------------
+Only for teaching / understanding. No heavy logic. Just proof that filter runs.
+
+UsernamePasswordAuthenticationFilter only creates the Authentication object; 
+it does not authenticate the user. 
+
+
+Step 1: Create a filter
+public class AfterLoginDemoFilter extends OncePerRequestFilter {
+
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain)
+            throws ServletException, IOException {
+
+        System.out.println(">>> After UsernamePasswordAuthenticationFilter");
+
+        filterChain.doFilter(request, response);
+    }
+}
+
+Step 2: Register this filter in SecurityFilterChain
+---------------------------------------------
+
+addFilterAfter()
+Updated config (minimal change)
+
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+    http.csrf(AbstractHttpConfigurer::disable)
+        .cors(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(registry ->
+            registry.requestMatchers("/admin/**").hasAnyRole("ADMIN")
+                    .requestMatchers("/mgr/**").hasAnyRole("ADMIN","MGR")
+                    .requestMatchers("/clerk/**").hasAnyRole("ADMIN","MGR","CLERK")
+                    .requestMatchers("/home/**").permitAll()
+                    .anyRequest().authenticated()
+        )
+        .httpBasic(Customizer.withDefaults())
+        .addFilterAfter(
+            new AfterLoginDemoFilter(),
+            UsernamePasswordAuthenticationFilter.class
+        )
+        .sessionManagement(session ->
+            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        );
+
+    return http.build();
+}
+
+
+Step 3: Spring sec with database
+-------------------------------------
+step 3 a: 
+define user entity
+---------------------
+@Data
+@NoArgsConstructor
+@ToString
+@Entity
+@Table(name = "user_table_2")
+public class UserEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @Column(unique = true, nullable = false)
+    private String username;
+    private String password;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name="user_roles_2")
+    private List<String> roles= new ArrayList<>();
+
+    public UserEntity(String username, String password, List<String> roles) {
+        this.username = username;
+        this.password = password;
+        this.roles = roles;
+    }
+}
+
+step 3 b: define repo
+--------------------
+
+@Repository
+public interface UserRepo extends JpaRepository<UserEntity, Integer> {
+    public UserEntity findByUsername(String userName);
+}
+
+step 3 c: define service layer
+-------------------------------
+
+public interface UserService {
+    public UserEntity findByUsername(String username);
+    public void addUserEntity(UserEntity userEntity);
+}
+
+
+@Service
+@Transactional
+public class UserServiceImpl implements UserService{
+    private UserRepo userRepo;
+    @Autowired
+    public UserServiceImpl(UserRepo userRepo) {
+        this.userRepo = userRepo;
+    }
+
+    @Override
+    public UserEntity findByUsername(String username) {
+        return userRepo.findByUsername(username);
+    }
+
+    @Override
+    public void addUserEntity(UserEntity userEntity) {
+        userRepo.save(userEntity);
+    }
+}
+
+step 3 d: define userDetail service
+--------------------------------------
+@Service
+public class DetailService implements UserDetailsService {
+
+    @Autowired
+    private UserService userService;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        UserEntity userEntity=userService.findByUsername(username);
+        if(userEntity==null)
+            throw new UsernameNotFoundException("Username/password is invalid");
+        //now problem: userEntity--->UserDetails(which spring sec understand)
+        return new SecUser(userEntity);
+    }
+}
+
+
+step 3 e: define secUser
+-------------------------
+
+public class SecUser implements UserDetails {
+
+    private UserEntity userEntity;
+
+    public SecUser(UserEntity userEntity) {
+        this.userEntity = userEntity;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+       return AuthorityUtils.createAuthorityList(userEntity.getRoles());
+    }
+
+    @Override
+    public String getPassword() {
+        return userEntity.getPassword();
+    }
+
+    @Override
+    public String getUsername() {
+        return userEntity.getUsername();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+}
+
+step 3 f: initilized database
+---------------------------
+//String username, String password, List<String> roles
+userService.addUserEntity(new UserEntity("raj","raj123", List.of("ROLE_MGR","ROLE_CLERK")));
+userService.addUserEntity(new UserEntity("ekta","ekta123", List.of("ROLE_CLERK")));
+
+
+with password encoder:
+---------------------------
+
+userService.addUserEntity(new UserEntity("raj",
+passwordEncoder.encode("raj123"), List.of("ROLE_ADMIN","ROLE_MGR","ROLE_CLERK")));
+
+userService.addUserEntity(new UserEntity("ekta",passwordEncoder.encode("ekta123"),
+         List.of("ROLE_MGR","ROLE_CLERK")));
+		 
+userService.addUserEntity(new UserEntity("gun",passwordEncoder.encode("gun123"),
+         List.of("ROLE_MGR","ROLE_CLERK")));
+
+
+step 3 g: change security config to use user detailservice
+--------------------------------------------------------
+
+@Component
+@EnableWebSecurity
+@EnableMethodSecurity
+public class SecConfig {
+
+    @Autowired
+    private DetailService userDetailsService;
+
+    @Bean
+    public AuthenticationProvider getAuthentication(){
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
+
+    //......
+}
+
+
+
+Step 4: spring boot method level security
+------------------------------------------
+apply to sec config class:
+--------------------
+@EnableMethodSecurity(prePostEnabled = true)
+
+
+
+@Component
+@EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
+public class SecConfig {
+	//....
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(registry -> registry.anyRequest().authenticated())
+                .httpBasic(Customizer.withDefaults())
+                .sessionManagement(httpSecuritySessionManagementConfigurer ->
+                        httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        return http.build();
+    }
+	//.....
+	
+}
+
+Use annotation :
+----------------
+@RestController
+public class HelloController {
+
+    @GetMapping(path = "home")
+    public String home(){
+        return "home";
+    }
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @GetMapping(path = "admin")
+    public String admin(){
+        return "admin";
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_MGR') or hasAuthority('ROLE_CLERK')")
+    @GetMapping(path = "mgr")
+    public String mgr(){
+        return "mgr";
+    }
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_MGR') or hasAuthority('ROLE_CLERK')")
+    @GetMapping(path = "clerk")
+    public String clerk(){
+        return "clerk";
+    }
+}
+
+
+
+Applying method level security:
+@PreAuthorize("hasAuthority('ROLE_MGR') or hasAuthority('ROLE_CLERK')")
+ @PreAuthorize("hasAuthority('ROLE_MGR')")
+ 
+ 
+* Exception handler
+------------------------
+AuthenticationEntryPoint handles 401 when user is not logged in.
+AccessDeniedHandler handles 403 when user is logged in but not allowed.
+
+Spring gives 401 by default, but for JWT APIs we override the entry point 
+so the client—not the browser—controls the flow
+
+	AuthenticationEntryPoint: 401
+	AccessDeniedHandler: 403
+		
+	Behind the scenes:
+	------------------
+	Request comes
+		Spring Security filters run
+		If NOT authenticated → AuthenticationEntryPoint
+		If authenticated BUT not allowed → AccessDeniedHandler
+
+Controller is never called in both cases
+
+@Service
+public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
+	@Override
+	public void commence(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException authException) throws IOException, ServletException {
+		response.setHeader("busycoder-error", "Authentication Failure");
+		response.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
+	}
+
+}
+
+
+This is the judge, not the bouncer.
+------------------------------------------
+Earlier class (AuthenticationEntryPoint) = “Who are you?”
+This class (AccessDeniedHandler) = “I know who you are… but you’re NOT allowed.”
+
+AuthenticationEntryPoint handles who you are (401),
+AccessDeniedHandler handles what you’re allowed to do (403).
+
+What We are doing in below code?
+--------------------------------
+If the user is logged in but lacks the required role, Spring Security intercepts the request 
+and blocks it before the controller runs.
+
+We return a clean 403 JSON response (with reason, timestamp, and path) 
+instead of Spring’s default ugly error.
+
+
+
+AccessDeniedException is thrown by FilterSecurityInterceptor.
+That’s the filter responsible for authorization in Spring Security.
+
+
+@Service
+public class CustomAccessDeniedHandler implements AccessDeniedHandler {
+
+	@Override
+	public void handle(HttpServletRequest request, HttpServletResponse response,
+			AccessDeniedException accessDeniedException) throws IOException, ServletException {
+		 LocalDateTime currentTimeStamp = LocalDateTime.now();
+	        String message = (accessDeniedException != null && accessDeniedException.getMessage() != null) ?
+	                accessDeniedException.getMessage() : "Authorization failed";
+	        String path = request.getRequestURI();
+	        response.setHeader("busycoder-denied-reason", "Authorization failed");
+	        response.setStatus(HttpStatus.FORBIDDEN.value());
+	        response.setContentType("application/json;charset=UTF-8");
+	        // Construct the JSON response
+	        String jsonResponse =
+	                String.format("{\"timestamp\": \"%s\", \"status\": %d, \"error\": \"%s\", \"message\": \"%s\", \"path\": \"%s\"}",
+	                        currentTimeStamp, HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN.getReasonPhrase(),
+	                        message, path);
+	        response.getWriter().write(jsonResponse);
+	}
+
+}
+
+
+End-to-end flow
+--------------------
+Request →
+  No token → AuthenticationEntryPoint → 401
+  Token ok but role wrong → AccessDeniedHandler → 403
+  Token + role ok → Controller
+
+
+
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
+public class SecConfig {
+	
+	
+	@Autowired
+	private AccessDeniedHandler accessDeniedHandler;
+	
+	@Autowired
+	private AuthenticationEntryPoint authenticationEntryPoint;
+	
+	//------------------------
+	
+	//Authrization
+	@Bean
+	SecurityFilterChain chain(HttpSecurity httpSecurity) throws Exception {
+		return httpSecurity
+		.csrf(AbstractHttpConfigurer::disable)
+		.cors(AbstractHttpConfigurer::disable)
+		.authorizeHttpRequests(registry-> registry.anyRequest().authenticated())
+//		.httpBasic(Customizer.withDefaults())
+		.httpBasic(hbc ->hbc.authenticationEntryPoint(authenticationEntryPoint) )
+		.exceptionHandling(hbc-> hbc.accessDeniedHandler(accessDeniedHandler))
+		.sessionManagement(configure-> configure.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+		.build();
+		
+		
+	}
+}
+
+@AuthenticationPrincipal annotation
+using securityContextHolder
+using Principle
+
+
+
+
+
+Spring security jwt:
+-------------------
+step 1: put maven dependency
+        <dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>0.11.5</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>0.11.5</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId>
+			<version>0.11.5</version>
+		</dependency>
+	
+	
+	step 
+	1. allow user to enter and /authenticate 
+	and it will username and password and
+	if username and pw is correct it will produe jwt token
+	
+	
+	2. once user get jwt token for each request while accessing the 
+	res u need allowed to pass jwt token then validate it
+	if it is  correct you will provide with proper response
+	
+	
+		
+Step 2: create JwtService that create and validate jwt token
+------------------------------------------------------------
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoder;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+
+import java.security.Key;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
+@Component
+public class JwtService {
+    public static final String
+            SECRET = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
+			
+	//Extract username, JWT subject = username Convention, not rule , we need to follow the standard
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+	//eads exp claim Used for expiry check
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+	//Parses token once, Lets caller decide what to extract
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+	/*
+	This line does three big things:
+	1️. Verifies signature (token not tampered)
+	2️. Verifies structure (valid JWT)
+	3️. Extracts claims (payload)
+	*/
+    private Claims extractAllClaims(String token) {
+        return Jwts
+                .parserBuilder()
+                .setSigningKey(getSignKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+	//true → token dead and false → token alive
+    private Boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+	/*
+	Checks only two things:
+	1️. Username in token == username from DB
+	2️. Token is not expired
+	If both true → accept request
+	*/
+
+    public Boolean validateToken(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
+    public String generateToken(String userName) {
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, userName);
+    }
+
+    private String createToken(Map<String, Object> claims, String userName) {
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(userName)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
+                .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
+    }
+
+    private Key getSignKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+}
+
+
+Note: We embed the user’s roles inside the JWT so Spring Security can authorize requests without hitting the database on every call.
+-------------------------------------------------------------------------------------------------------------
+public String generateToken(UserDetails userDetails) {
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("roles",
+        userDetails.getAuthorities()
+                   .stream()
+                   .map(a -> a.getAuthority())
+                   .toList()
+    );
+    return createToken(claims, userDetails.getUsername());
+}
+
+
+
+
+Step 2: create an endpoint "authenticate" that allow user to get jwt token
+-----------------------------------------------------------------------------
+
+
+
+@Data
+public class AuthRequest {
+    private String username;
+    private String password;
+}
+
+
+define AuthenticationManager bean in security configuration:
+------------------------------------------------------------
+Spring Security creates AuthenticationManager internally, 
+but does NOT expose it as a bean by default.
+
+You declare it as a bean so your controller/service can use it to 
+authenticate username/password and issue JWT.
+
+
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)throws Exception {
+        return config.getAuthenticationManager();
+    }
+	
+	
+
+We need to create an endpoint so that user can get token :
+-----------------------------------------------------
+allow to access without security:
+                .authorizeHttpRequests(auth->
+                        auth.requestMatchers("authenticate").permitAll()
+                        .anyRequest().authenticated())
+						
+	
+Manual Authentication (JWT Login) and Role Checks
+-------------------------------------------------
+@RestController
+public class HelloController {
+
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @GetMapping(path = "home")
+    public String home() {
+        return "home ";
+    }
+
+    //3. craete a endpoint so that user can send his u/p and get token
+    @PostMapping(path = "authenticate")
+    public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+
+        Authentication authentication
+                =authenticationManager.
+                authenticate(new UsernamePasswordAuthenticationToken(
+                        authRequest.getUsername(),
+                        authRequest.getPassword()
+                ));
+
+        if(authentication.isAuthenticated()){
+            return jwtService.generateToken(authRequest.getUsername());
+        }else {
+            throw  new UsernameNotFoundException("user is invalid");
+        }
+
+
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_MGR')")
+    @GetMapping(path = "mgr")
+    public String mgr(){
+        return "mgr ";
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_MGR') or hasAuthority('ROLE_CLERK')")
+    @GetMapping(path = "clerk")
+    public String clerk(){
+        return "clerk ";
+    }
+
+
+}
+
+
+JWT Login vs Basic Auth — Notes Jist
+--------------------------------------------
+
+	In Basic Authentication, BasicAuthenticationFilter automatically:
+	reads username/password from request
+	wraps them in UsernamePasswordAuthenticationToken
+	calls AuthenticationManager.authenticate()
+
+In JWT login, we do the same steps manually inside a controller:
+	read username/password from JSON body
+	create UsernamePasswordAuthenticationToken
+	call AuthenticationManager.authenticate()
+	From authenticate() onward, both flows are identical:
+	AuthenticationProvider → UserDetailsService → PasswordEncoder
+
+If credentials are valid:
+	authentication succeeds
+	we generate and return a JWT
+	If credentials are invalid:
+	Spring throws an exception (no controller logic runs)
+
+JWT login = manual version of what BasicAuthenticationFilter does automatically
+
+
+
+Step 3: write JwtAuthFilter that validate jwt token and put UsernamePasswordAuthenticationToken in security context
+-----------------------------------------------------------------------------
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Service;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+//This request claims to be from user X — should we TRUST it?
+@Service
+public class JwtAuthFilter extends OncePerRequestFilter {
+
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+
+        String authHeader= request.getHeader("Authorization");
+        String token=null;
+        String username=null;
+
+            if(authHeader!=null && authHeader.startsWith("Bearer ")){
+            token=authHeader.substring(7);
+            username=jwtService.extractUsername(token);
+        }
+
+        if(username!=null && SecurityContextHolder.getContext().getAuthentication()==null){
+            UserDetails userDetails=userDetailsService.loadUserByUsername(username);
+            //username is correct , and we are going to get UNAuthToeken and put that in SecurityContextHolder ....
+            if(jwtService.validateToken(token, userDetails)){
+
+                UsernamePasswordAuthenticationToken authToken=
+                     new  UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+               // authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+
+            }
+
+        }
+        filterChain.doFilter(request, response);
+    }
+}
+
+
+
+Note:
+1. Why OncePerRequestFilter?
+-------------------------------
+JWT filters must extend OncePerRequestFilter to ensure a single, predictable authentication setup per request
+
+	Why not a plain Servlet Filter? What problem it solves
+	OncePerRequestFilter guarantees:
+	This filter runs exactly ONCE per HTTP request.
+	Even if:
+		request is forwarded
+		async dispatch happens
+		error dispatch happens
+	A plain javax.servlet.Filter can run multiple times for the same request.
+
+	Why this matters for JWT
+	JWT logic must be:
+		deterministic
+		idempotent
+		run once per request
+
+	If a normal filter runs twice:
+		SecurityContext may be overwritten
+		duplicate authentication
+		weird bugs (hard to find)
+		Spring Security is very strict about this.
+		
+		
+2. What is this null in UsernamePasswordAuthenticationToken?
+-----------------------------------------------------
+Constructor you are using
+public UsernamePasswordAuthenticationToken(
+        Object principal,
+        Object credentials,
+        Collection<? extends GrantedAuthority> authorities
+)
+		
+
+principal → WHO the user is it contain:  UserDetails + username + account info
+---------
+credentials → PROOF (password) password / secret, is not needed anymore thats why we put it null
+--------
+	You already authenticated earlier during login.
+	Re-sending password on every request would be stupid and insecure.
+
+authorities → WHAT the user can do ie roles + permissions and it is used by @PreAuthorize
+--------------------
+
+
+If authorities is provided, Spring treats this token as authenticated.
+	So:
+	password not required
+	authentication already trusted
+	
+authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));	
+---------------------------------------------------------------------
+	In JWT apps, authentication already happened during login.
+	On every request, JWT filter only trusts the token and sets user info in SecurityContext.
+	setDetails() can attach request metadata like client IP.
+	This IP is used for logging and auditing, not for authentication.
+
+	JWT = who the user is, IP = where the request came from
+
+Summary
+-----------
+	OncePerRequestFilter ensures JWT logic runs exactly once per request.
+	null credentials mean “password already verified earlier.”
+	JWT filter does not authenticate users; it only prepares authorization context for Spring Security.
+	
+
+
+Goal: Log user IP only when needed, cleanly, declaratively.
+--------------------------------------------
+Step 1️: Create a custom annotation
+-------------------------------
+	@Target(ElementType.METHOD)
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface LogClientIp {
+	}
+
+Step 2️: Aspect to capture IP (AOP way)
+------------------------------------
+	@Aspect
+	@Component
+	public class ClientIpAspect {
+		@Around("@annotation(LogClientIp)")
+		public Object logIp(ProceedingJoinPoint joinPoint) throws Throwable {
+
+
+			ServletRequestAttributes attrs =
+				(ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
+
+			HttpServletRequest request = attrs.getRequest();
+
+
+			String ip =
+				request.getHeader("X-Forwarded-For") != null
+					? request.getHeader("X-Forwarded-For").split(",")[0]
+					: request.getRemoteAddr();
+
+
+			Authentication auth =
+				SecurityContextHolder.getContext().getAuthentication();
+
+
+			String username =
+				(auth != null) ? auth.getName() : "anonymous";
+
+
+			System.out.println("User: " + username + " | IP: " + ip);
+
+
+			return joinPoint.proceed();
+		}
+	}
+Step 3️: Use it on any endpoint
+---------------------------
+	@LogClientIp
+	@GetMapping("/mgr")
+	public String mgr() {
+		return "mgr";
+	}
+
+That’s it.
+-----------------
+	No JWT filter changes.
+	No coupling.
+	No mess.
+	
+
+Step 4: Customized spring security so that jwtAuthFilter must be registerd before UsernamePasswordAuthenticationFilter
+-----------------------------------------------------------------------------
+This configuration wires JWT filter, authorization rules, and stateless policy into Spring Security’s filter chain
+
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Component;
+
+@Component
+@EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
+public class SecConfig {
+
+    @Autowired
+    private DetailService userDetailsService;
+
+    @Autowired
+    private JwtAuthFilter jwtAuthFilter;
+
+    @Bean
+    public AuthenticationProvider getAuthentication(){
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
+	//.httpBasic(AbstractHttpConfigurer::disable)
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth->
+                        auth.requestMatchers("authenticate").permitAll()
+                        .anyRequest().authenticated())
+                .httpBasic(Customizer.withDefaults())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .sessionManagement(httpSecuritySessionManagementConfigurer ->
+                        httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+        return NoOpPasswordEncoder.getInstance();
+    }
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)throws Exception {
+        return config.getAuthenticationManager();
+    }
+}
+
+
+
+
+
+
+Ways to Access the Logged-In User in Spring Security (Controller & Service) 
+------------------------------------------------------------------------------
+	There are several ways to get the currently logged-in user in Spring Security.
+	You’re not imagining it. Here are the practical ones you actually use, from “clean and modern” to “old but works.”
+	
+1️. @AuthenticationPrincipal (Best for controllers 💯)
+---------------------------------------------
+	This is probably the annotation you forgot.
+	@GetMapping("/me")
+	public String me(@AuthenticationPrincipal UserDetails userDetails) {
+		return userDetails.getUsername();
+	}
+	If you have a custom UserDetails:
+	@GetMapping("/me")
+	public String me(@AuthenticationPrincipal MyUserDetails user) {
+		return user.getEmail();
+	}
+
+	 Clean
+	 Testable
+	 No static calls
+	 Controller only (not service layer)
+
+2️. SecurityContextHolder (Works everywhere, including services)
+------------------------------------------------------------
+	The classic way. Still valid.
+	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	String username = auth.getName();
+
+	Or if you need roles:
+	Collection<? extends GrantedAuthority> roles = auth.getAuthorities();
+	 Works in controller, service, anywhere
+	 Static access (harder to test)
+	 Easy to abuse
+
+3️. Inject Principal (Simple & underrated)
+----------------------------------------------
+@GetMapping("/me")
+public String me(Principal principal) {
+    return principal.getName();
+}
+ Lightweight
+ No Spring Security imports
+ Username only (no roles, no details)
+
+4️. Inject Authentication directly (More power than Principal)
+-------------------------------------------------------
+@GetMapping("/me")
+public String me(Authentication authentication) {
+    return authentication.getName();
+}
+Or:
+UserDetails user = (UserDetails) authentication.getPrincipal();
+ Full access
+ No static calls
+ Controller only
+
+5️. From JWT claims (when you really need it)
+---------------------------------------------
+If your JWT has custom claims (like userId):
+Jwt jwt = (Jwt) SecurityContextHolder
+        .getContext()
+        .getAuthentication()
+        .getPrincipal();
+String userId = jwt.getClaim("userId");
+
+ Useful for stateless APIs
+ JWT-coupled logic (don’t overdo it)
+
+
+
+GOAL: Embed userId in JWT, Keep roles as-is, Access userId later in service layer
+-------------------------------------------------------------
+Minimal changes to your existing flow
+
+CHANGE 1: Modify JwtService to accept extra claims
+-----------------------------------------------------
+ADD THIS METHOD (do NOT remove existing ones)
+----------------------------------------------
+public String generateToken(UserDetails userDetails, Long userId) {
+    Map<String, Object> claims = new HashMap<>();
+    // existing roles logic (keep it)
+    claims.put("roles",
+        userDetails.getAuthorities()
+                   .stream()
+                   .map(a -> a.getAuthority())
+                   .toList()
+    );
+
+
+    //  NEW: add userId
+    claims.put("userId", userId);
+    return createToken(claims, userDetails.getUsername());
+}
+
+ Backward-compatible
+ Roles still work
+ userId now travels with JWT
+
+CHANGE 2: Update /authenticate endpoint (ONE LINE CHANGE)
+------------------------------------------------------------
+ Current code (problem)
+
+You generate token using only username:
+
+return jwtService.generateToken(authRequest.getUsername());
+
+JWT has no userId → can’t extract later.
+
+Correct version
+	You must:
+	Get authenticated UserDetails
+	Get userId from DB
+	Pass both to JwtService
+
+@PostMapping(path = "authenticate")
+public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+
+
+    Authentication authentication =
+        authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(
+                authRequest.getUsername(),
+                authRequest.getPassword()
+            )
+        );
+
+    if (authentication.isAuthenticated()) {
+        UserDetails userDetails =
+            (UserDetails) authentication.getPrincipal();
+        // 🔥 Fetch userId from DB
+        User user = userRepository
+                        .findByUsername(userDetails.getUsername())
+                        .orElseThrow();
+
+        return jwtService.generateToken(userDetails, user.getId());
+
+    } else {
+        throw new UsernameNotFoundException("user is invalid");
+    }
+}
+
+ No extra authentication
+ One DB hit at login (acceptable)
+ JWT now contains userId
+
+CHANGE 3: Create CurrentUserUtil (NEW CLASS)
+-----------------------------------------------
+This is where you safely read userId later.
+
+@Component
+public class CurrentUserUtil {
+
+    public Long getUserId() {
+        Authentication authentication =
+            SecurityContextHolder.getContext().getAuthentication();
+
+        UserDetails userDetails =
+            (UserDetails) authentication.getPrincipal();
+
+
+        // JWT was already validated by JwtAuthFilter
+        Jwt jwt = (Jwt) authentication.getDetails();
+
+
+        return jwt.getClaim("userId");
+    }
+
+
+    public String getUsername() {
+        return SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+    }
+}
+
+If you’re not using Spring’s Jwt object, you can alternatively
+ re-parse the token using JwtService.extractClaim(...).
+
+OPTIONAL (BUT CLEAN): Improve JwtAuthFilter
+------------------------------------
+
+Right now you set:
+
+new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+You can attach JWT claims as details (optional but nice):
+
+UsernamePasswordAuthenticationToken authToken =
+    new UsernamePasswordAuthenticationToken(
+        userDetails,
+        null,
+        userDetails.getAuthorities()
+    );
+
+
+authToken.setDetails(jwtService.extractAllClaims(token));
+SecurityContextHolder.getContext().setAuthentication(authToken);
+
+This avoids re-parsing JWT later.
+
+ FINAL USAGE (Service Layer)
+ -----------------------------
+@Service
+public class OrderService {
+
+
+    @Autowired
+    private CurrentUserUtil currentUser;
+
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+
+    public List<Order> getMyOrders() {
+        Long userId = currentUser.getUserId();
+        return orderRepository.findByUserId(userId);
+    }
+}
+
+✔ User can’t fake ID
+✔ No request params
+✔ Ownership enforced
+
+🧠 Final Reality Check (no sugar-coating)
+
+Your architecture is correct
+
+You only needed:
+
+add userId to JWT
+
+change token generation call
+
+add one helper class
+
+DB-generated IDs in JWT are safe
+
+JWT ≠ authorization — still enforce ownership
+
+
+
+
+
+
+
+
+
+
+Note:Relationship: UserDetailsService ➜ DaoAuthenticationProvider
+------------------------------------------------------------------
+DaoAuthenticationProvider is the default authentication provider in Spring Security.
+It delegates to a UserDetailsService to load user details by username.
+So, when you define a @Bean UserDetailsService like this, Spring uses it automatically through DaoAuthenticationProvider.
+
+How It Works Behind the Scenes:
+--------------------------------
+@Bean
+public UserDetailsService userDetailsService() {
+    return new InMemoryUserDetailsManager(user, admin);
+}
+
+Spring Boot auto-configures a DaoAuthenticationProvider and injects this userDetailsService into it.
+
+During login:
+--------------
+	Spring Security calls DaoAuthenticationProvider.authenticate(...)
+	It calls userDetailsService.loadUserByUsername(...)
+	Which returns your in-memory user or admin
+	Then compares passwords (supports {noop} as a raw password encoder)
+
+Optional: Explicit DaoAuthenticationProvider (imp)
+---------------------------------------------------------
+If you want to wire things manually (not needed with Spring Boot defaults):
+-----------------------------------------------------
+public DaoAuthenticationProvider authProvider() {
+    DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+    provider.setUserDetailsService(userDetailsService()); // your bean
+    provider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
+    return provider;
+}
+
+
+Final 				Notes:
+--------------------------------------------
+Component							Role
+--------------------------------------------
+UserDetailsService				Loads user data (from memory, DB, etc.)
+InMemoryUserDetailsManager		A simple in-memory implementation
+DaoAuthenticationProvider		Uses UserDetailsService to authenticate
+{noop}	Indicates plain-text 	password (no encoding)
+

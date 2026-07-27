@@ -21,9 +21,9 @@ public class Employee {
 	private double salary;
 
 	//@JsonIgnore
-//	@JsonBackReference
-//	@JoinColumn(name = "did_fk")
-//	@ManyToOne
+	@JsonBackReference
+	@JoinColumn(name = "did_fk")
+	@ManyToOne
 	private Department department;
 
 	public Employee(String name, double salary, Department department) {

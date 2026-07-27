@@ -24,6 +24,7 @@ public class Account {
     @Column(name = "account_balance")
     private BigDecimal balance;
 
+
     public Account(String accountHolderName, BigDecimal balance) {
         this.accountHolderName = accountHolderName;
         this.balance = balance;

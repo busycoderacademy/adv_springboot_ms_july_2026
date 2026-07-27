@@ -27,8 +27,9 @@ public class Department {
 	private String dname;
 
 	//@JsonIgnore
-//	@JsonManagedReference
-//	@OneToMany(mappedBy = "department", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JsonManagedReference
+	@OneToMany(mappedBy = "department",
+			cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<Employee> employees=new ArrayList<>();
 
 	public Department(String dname) {
