@@ -35,6 +35,6 @@ public class BankappApplication implements  CommandLineRunner{
 				List.of("ROLE_MGR","ROLE_CLERK")));
 
 		userService.addUserEntity(new UserEntity("gun",passwordEncoder.encode("gun123"),
-				List.of("ROLE_MGR","ROLE_CLERK")));
+				List.of("ROLE_CLERK")));
 	}
 }
