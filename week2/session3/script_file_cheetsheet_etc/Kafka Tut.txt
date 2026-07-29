@@ -1,0 +1,990 @@
+Spring boot Kafka workshop:
+=========================
+
+Part 1 : Traditional Java Method Call
+-----------------------------
+1.1 Problem Statement
+
+Consider a simple banking application.
+
+A customer transfers ₹5,000 from one account to another.
+
+From Account : 1001
+To Account   : 2001
+Amount       : ₹5000
+
+When the transfer is completed successfully, 
+the application has the following business requirements:
+
+Debit the sender account.
+Credit the receiver account.
+
+Send an SMS notification.
+Save an audit record.
+
+
+1.2 Traditional Design
+
+A simple implementation may look like this:
+-------------------------------------
+@Service
+public class FundTransferService {
+
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private AuditService auditService;
+
+    public void transfer() {
+
+        debitAccount();
+
+        creditAccount();
+
+        notificationService.sendSms();
+
+        auditService.saveAudit();
+
+    }
+}
+
+
+1.3 Execution Flow
+----------------------
+FundTransferService
+        |
+        |
+   debitAccount()
+        |
+        |
+   creditAccount()
+        |
+        |
+ notificationService.sendSms()
+        |
+        |
+ auditService.saveAudit()
+
+Everything happens one after another.
+
+1.4 Output
+-------------
+Debit completed.
+Credit completed.
+SMS sent.
+Audit saved.
+
+1.5 What Is Happening?
+---------------------------
+The FundTransferService directly calls every service that needs to perform additional work.
+
+FundTransferService
+        |
+        +------------------> NotificationService
+        |
+        +------------------> AuditService
+
+Each service is invoked explicitly.
+
+
+
+1.6 The Design Problem
+-----------------
+Initially, there are only two additional operations.
+
+Transfer
+   |
+   +--> SMS
+   |
+   +--> Audit
+
+A new requirement arrives.
+
+Send an email after every successful transfer.The code changes.
+
+Later another requirement arrives.Generate a transfer report.
+
+public void transfer() {
+
+    debitAccount();
+
+    creditAccount();
+
+    notificationService.sendSms();
+
+    auditService.saveAudit();
+
+    emailService.sendEmail();
+
+    reportService.generateReport();
+
+}
+
+More requirements continue to increase the number of direct method calls.
+
+1.7 Result
+----------------
+The transfer service gradually becomes responsible for many unrelated tasks.
+
+                    FundTransferService
+                            |
+        ------------------------------------------------
+        |              |              |                |
+        |              |              |                |
+ Notification      Audit         Email          Report
+   Service        Service       Service         Service
+
+Although the primary responsibility of FundTransferService is to transfer money,
+ it now also coordinates notifications, auditing, reporting, and other secondary operations.
+
+1.8 Limitation
+-------------
+Every time a new feature is introduced, the transfer service must be modified.
+
+Examples:
+SMS
+Email
+Audit
+Report
+Fraud Detection
+Cashback
+Analytics
+
+Each new feature adds another direct dependency.
+
+This leads to:
+Tight coupling between services.
+Increasing number of dependencies.
+Frequent modification of the transfer service.
+Reduced maintainability.
+1.9 A Better Question
+
+Instead of asking:
+"Which services should I call after a successful transfer?"
+
+A better question is:
+
+"Can the transfer service simply announce that a fund transfer has been completed,
+ and let interested components react to that information?"
+
+This idea introduces the concept of events, which is the focus of the next section:
+
+
+
+Part 2: Spring Boot Local Events using ApplicationEventPublisher and @EventListener.
+------------------------------------------------------------------------------------
+In Part 1, the FundTransferService directly called every service after completing the fund transfer.
+
+FundTransferService
+        |
+        +--> NotificationService
+        |
+        +--> AuditService
+        |
+        +--> EmailService
+
+As new requirements were added, the transfer service became responsible for more and more tasks.
+
+Instead of directly invoking every service, a better approach is to publish an event.
+
+The transfer service simply announces:"A fund transfer has been completed."
+
+Any component interested in this information can listen for the event and perform its own work independently.
+
+2.2 Create an Event
+---------------------
+An event is simply a Java object that carries information about something that has already happened.
+
+In our application, a successful fund transfer is represented by the following event.
+
+public class FundTransferEvent {
+    private Long fromAccount;
+    private Long toAccount;
+    private BigDecimal amount;
+    private LocalDateTime transferTime;
+
+}
+
+2.3 Publishing the Event
+---------------------------------
+Spring provides the ApplicationEventPublisher interface to publish application events.
+
+@Service
+public class FundTransferService {
+
+    private final ApplicationEventPublisher publisher;
+
+    public FundTransferService(ApplicationEventPublisher publisher) {
+        this.publisher = publisher;
+    }
+
+    public void transfer() {
+
+        System.out.println("Debiting source account...");
+
+        System.out.println("Crediting destination account...");
+
+        FundTransferEvent event =
+                new FundTransferEvent(
+                        1001L,
+                        2001L,
+                        new BigDecimal("5000"),
+                        LocalDateTime.now());
+
+        publisher.publishEvent(event);
+
+        System.out.println("Fund Transfer Completed");
+    }
+}
+
+Notice that the transfer service no longer calls any notification or audit service directly.
+
+Its only responsibility is to complete the transfer and publish an event.
+
+2.4 What Does publishEvent() Actually Do?
+-----------------------------
+When the following line executes:
+
+publisher.publishEvent(event);
+
+Spring checks whether any component in the application is interested in the FundTransferEvent.
+
+If one or more listeners are found, Spring invokes them automatically.
+
+The publisher does not know:
+--------------------------
+Who will receive the event.
+How many listeners exist.
+What each listener will do.
+
+It simply publishes the event.
+
+2.5 Create the First Listener
+-----------------------------------
+Suppose the banking application needs to send an SMS after every successful transfer.
+
+@Component
+public class NotificationListener {
+
+    @EventListener
+    public void sendSms(FundTransferEvent event) {
+
+        System.out.println("SMS Notification Sent");
+
+        System.out.println("From Account : " + event.getFromAccount());
+
+        System.out.println("To Account   : " + event.getToAccount());
+
+        System.out.println("Amount       : " + event.getAmount());
+
+        System.out.println("Time         : " + event.getTransferTime());
+
+    }
+}
+
+2.8 Adding Another Listener
+-----------------------------------
+Suppose the business now requires every successful transfer to be recorded for auditing.
+
+No changes are required in FundTransferService.
+
+Simply add another listener.
+
+@Component
+public class AuditListener {
+
+    @EventListener
+    public void saveAudit(FundTransferEvent event) {
+
+        System.out.println("Audit Record Saved");
+
+        System.out.println(event);
+
+    }
+}
+2.9 Updated Flow
+                   publishEvent()
+                         |
+                         |
+               FundTransferEvent
+                         |
+          --------------------------------
+          |                              |
+          |                              |
+NotificationListener             AuditListener
+
+
+
+One published event is delivered to multiple listeners.
+The publisher remains unchanged.
+
+2.10 Benefits of Spring Application Events
+-----------------------------------------------
+The publisher does not depend on listener implementations.
+Multiple listeners can react to the same event.
+New listeners can be added without modifying the publisher.
+The design becomes loosely coupled and easier to maintain.
+
+
+2.11 Limitation of Spring Application Events
+-----------------------------------------------
+Spring application events work only inside a single Spring Boot application (single JVM).
+
++--------------------------------------+
+|      Spring Boot Application         |
+|                                      |
+|  FundTransferService                 |
+|          |                           |
+|    publishEvent()                    |
+|          |                           |
+|   NotificationListener               |
+|   AuditListener                      |
++--------------------------------------+
+
+If the Notification Service becomes a separate microservice running in another JVM, the event cannot reach it.
+
+
+I would keep this chapter very practical. The reader already understands why Kafka is needed. Now the goal is simply:
+Publish the same FundTransferEvent to Kafka instead of Spring's ApplicationEventPublisher.
+
+
+
+Spring Events vs Kafka
+-------------------------------------------------
+Spring Application Events			Apache Kafka
+--------------------------------------------------
+Single Spring Boot application		Multiple applications
+Single JVM							Multiple JVMs
+No broker							Kafka Broker
+In-memory communication				Network communication
+Event disappears after processing	Event is stored in Kafka Topic
+Local communication					Distributed communication
+
+
+
+
+Part 4 : Publishing Events to Kafka using Spring Boot Producer
+------------------------------------------------------------
+
+4.2 Overall Architecture
+                  +----------------------+
+                  |  Transfer Service    |
+                  +----------+-----------+
+                             |
+                             |
+                  KafkaTemplate.send()
+                             |
+                             |
+                             V
+              ===================================
+                  fund-transfer-events
+              ===================================
+                             |
+                             |
+                      Kafka Broker
+
+At this stage, there is no consumer.
+
+The objective is only to publish the event successfully.
+
+4.3 Docker Compose
+-----------------
+Use the following Docker Compose file to start ZooKeeper, Kafka Broker and Kafka UI.
+
+version: "3"
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    depends_on:
+      - kafka
+    ports:
+      - "8085:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local-kafka
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+
+Start the containers.
+
+docker compose up -d
+
+
+4.4 Verify the Environment
+-------------------------------
+docker ps
+
+Expected containers
+zookeeper
+kafka
+kafka-ui
+Open Kafka UI
+
+http://localhost:8085
+
+
+4.5 Create Topic
+
+Enter Kafka container.
+
+docker exec -it kafka bash
+
+Create the topic.
+
+kafka-topics \
+--create \
+--topic fund-transfer-events \
+--bootstrap-server localhost:9092 \
+--partitions 3 \
+--replication-factor 1
+
+Verify.
+
+kafka-topics \
+--describe \
+--topic fund-transfer-events \
+--bootstrap-server localhost:9092
+
+4.6 Reusing the Existing Event
+
+
+Add maven dependencies:
+------------------------
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+		</dependency>
+		
+		
+		
+We will use the same event class created in Part 2.
+
+public class FundTransferEvent {
+
+    private Long fromAccount;
+
+    private Long toAccount;
+
+    private BigDecimal amount;
+
+    private LocalDateTime transferTime;
+
+    // Constructors
+
+    // Getters
+
+    // Setters
+
+}
+
+Notice that the event class does not change.
+
+Only the transport mechanism changes.
+
+4.7 Spring Boot Configuration
+-----------------------------
+application.properties
+
+
+server.port=8080
+
+spring.kafka.bootstrap-servers=localhost:9092
+spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer
+spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer
+
+
+4.9 Producer Service
+---------------------------
+
+@Service
+public class FundTransferProducer {
+
+    @Autowired
+    private KafkaTemplate<String, FundTransferEvent> kafkaTemplate;
+
+    private static final String TOPIC =
+            "fund-transfer-events";
+
+    public void publish(FundTransferEvent event) {
+
+        kafkaTemplate.send("fund-transfer-events", event);
+
+        System.out.println("Fund Transfer Event Published");
+
+    }
+
+}
+
+4.10 Controller
+----------------------
+@RestController
+@RequestMapping("/transfer")
+public class FundTransferController {
+
+    @Autowired
+    private FundTransferProducer producer;
+
+    @PostMapping
+    public String transfer() {
+
+        FundTransferEvent event =
+                new FundTransferEvent(
+                        1001L,
+                        2001L,
+                        new BigDecimal("5000"),
+                        LocalDateTime.now());
+
+        producer.publish(event);
+
+        return "Fund Transfer Completed";
+
+    }
+
+}
+
+
+4.12 Verify the Published Message
+----------------------------
+Inside Kafka container
+
+kafka-console-consumer \
+--bootstrap-server localhost:9092 \
+--topic fund-transfer-events \
+--from-beginning
+
+Call
+
+POST http://localhost:8080/transfer
+
+Expected output
+
+{
+  "fromAccount":1001,
+  "toAccount":2001,
+  "amount":5000,
+  "transferTime":"2026-07-28T10:35:14"
+}
+
+
+4.13 What Happened Internally?
+FundTransferEvent (Java Object)
+            |
+            |
+            V
+     JsonSerializer
+            |
+            |
+            V
+        JSON Message
+            |
+            |
+            V
+KafkaTemplate.send()
+            |
+            |
+            V
+ fund-transfer-events Topic
+            |
+            |
+            V
+     Kafka Broker
+
+
+
+Part 5 : Consuming Events from Kafka using Spring Boot Consumer
+-------------------------------------------------------------------
+
+In this tutorial, the Notification Service will consume every successful fund transfer and send an SMS notification.
+
+ Consumer Configuration
+---------------------------------
+application.properties
+server.port=8081
+
+spring.kafka.bootstrap-servers=localhost:9092
+
+spring.kafka.consumer.group-id=notification-group
+
+spring.kafka.consumer.auto-offset-reset=earliest
+
+spring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer
+
+spring.kafka.consumer.value-deserializer=org.springframework.kafka.support.serializer.JsonDeserializer
+
+spring.kafka.consumer.properties.spring.json.trusted.packages=*
+
+
+Tthink of a Consumer Group as a logical name for consumers doing the same type of work.
+
+
+
+5.5 Notification Consumer
+-----------------------------
+@Service
+public class NotificationConsumer {
+
+    @KafkaListener(topics = "fund-transfer-events",groupId = "notification-group")
+    public void consume(FundTransferEvent event) {
+
+        System.out.println("--------------------------------");
+
+        System.out.println("Fund Transfer Notification");
+
+        System.out.println("From Account : "  + event.getFromAccount());
+		//----------
+        System.out.println("SMS Sent Successfully");
+
+        System.out.println("--------------------------------");
+
+    }
+
+}
+
+
+
+5.6 What Does @KafkaListener Do?
+---------------------------------------
+@KafkaListener(topics="fund-transfer-events")
+
+tells Spring Boot Keep listening to the topic named fund-transfer-events.
+Whenever a new message arrives,Spring automatically reads the message,
+converts JSON into a Java object, invokes the listener method.
+
+No polling code needs to be written.
+---------------------------------
+Spring Kafka internally runs a background poll loop. 
+The @KafkaListener method is simply a callback that Spring invokes whenever the consumer's poll() fetches new records. 
+As developers, we don't write the polling logic ourselves; the framework manages it.
+
+
+
+
+Simply create another consumer.
+-------------------------------
+@Service
+public class AuditConsumer {
+
+    @KafkaListener(topics = "fund-transfer-events", groupId = "audit-group")
+    public void consume(FundTransferEvent event) {
+
+        System.out.println("Audit Record Saved");
+
+    }
+
+}
+
+Notice that the producer remains unchanged.
+
+5.11 Updated Architecture
+                    Transfer Service
+                           |
+                           |
+                 kafkaTemplate.send()
+                           |
+==================================================
+          Topic : fund-transfer-events
+==================================================
+               |                          |
+               |                          |
+               V                          V
+Notification Consumer          Audit Consumer
+(notification-group)          (audit-group)
+
+One published event is consumed independently by multiple applications.
+
+
+The producer has no knowledge of:
+--------------------
+Notification Service
+Audit Service
+Fraud Detection Service
+Reporting Service
+
+It simply publishes the business event.
+
+
+
+Part 6 : Handling Consumer Failures using Retry Topics and Dead Letter Topics (DLT)
+-------------------------------------------------------------------------------------
+In the previous tutorial, the Notification Consumer successfully processed every fund transfer event.
+
+But real-world applications do not always succeed.
+
+Sometimes message processing fails because of:
+--------------------------------------------
+Invalid business data
+Database failure
+Network issues
+Third-party API failure
+Programming errors
+
+This chapter explains how Spring Kafka handles such failures.
+
+
+
+A New Requirement
+--------------------------
+The bank introduces a business rule.
+
+SMS notifications should not be sent for transfers greater than ₹100,000 until manual verification is completed.
+
+For demonstration purposes, assume the consumer throws an exception whenever the transfer amount exceeds ₹100,000.
+
+
+6.4 Simulating a Failure
+------------------------
+@Service
+public class NotificationConsumer {
+
+    @KafkaListener( topics = "fund-transfer-events",groupId = "notification-group")
+    public void consume(FundTransferEvent event) {
+
+        if(event.getAmount().compareTo(new BigDecimal("100000")) > 0){
+
+            throw new IllegalArgumentException("Transfer amount exceeds the allowed limit.");
+
+        }
+
+        System.out.println("SMS Sent");
+
+    }
+
+}
+6.5 Test Case
+
+Publish the following event.
+
+From Account : 1001
+To Account   : 2001
+Amount        : ₹150000
+
+Consumer Output
+Transfer amount exceeds the allowed limit.
+
+java.lang.IllegalArgumentException
+The consumer has failed.
+
+
+
+6.6 The Important Problem
+----------------------------
+One bad message could prevent the consumer from processing newer messages.
+This situation is often called a Poison Message or Poison Pill.
+
+6.7 The Better Solution
+-----------------------------
+Retry the message a limited number of times.
+
+If it still fails,
+
+move it to another topic for manual investigation.
+
+This is exactly what Spring Kafka provides.
+
+6.8 Retryable Topic
+--------------------
+@Service
+public class NotificationConsumer {
+
+    @RetryableTopic(  attempts = "3", backoff = @Backoff(delay = 3000))
+    @KafkaListener( topics = "fund-transfer-events", groupId = "notification-group")
+    public void consume(FundTransferEvent event) {
+        if(event.getAmount()
+                .compareTo(new BigDecimal("100000")) > 0){
+
+            throw new IllegalArgumentException(
+                    "Transfer amount exceeds the allowed limit.");
+
+        }
+
+        System.out.println("SMS Sent");
+
+    }
+
+}
+---------------
+6.9 What Does @RetryableTopic Do?
+------------------------------------
+Spring automatically creates retry topics.
+
+fund-transfer-events
+fund-transfer-events-retry-0
+fund-transfer-events-retry-1
+fund-transfer-events-retry-2
+fund-transfer-events-dlt
+
+These topics are created automatically unless disabled.
+
+
+Note: wasted 20 min: 
+---------
+I don't see these in the consumer application: as consumer side we have retry and dlt so consumer must have both configuraiton :)
+----------------------------------
+spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer
+spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer
+
+
+
+ kafka-console-consumer --bootstrap-server localhost:9092 --topic fund-transfer-events-dlt --from-beginning
+
+
+list the topics:
+-------------------
+kafka-topics --bootstrap-server localhost:9092 --list
+
+6.10 Message Flow
+----------------------
+Suppose the consumer throws an exception.
+
+The flow becomes
+
+Transfer Service
+       |
+       |
+fund-transfer-events
+       |
+       |
+Notification Consumer
+       |
+       X
+ Exception
+       |
+       |
+fund-transfer-events-retry-0
+       |
+(after 3 seconds)
+       |
+Notification Consumer
+       |
+       X
+ Exception
+       |
+fund-transfer-events-retry-1
+       |
+(after 6 seconds)
+       |
+Notification Consumer
+       |
+       X
+ Exception
+       |
+fund-transfer-events-retry-2
+       |
+(after 12 seconds)
+       |
+Notification Consumer
+
+Notice something important.
+
+The consumer thread is not sleeping.
+
+Spring publishes the failed message to retry topics.
+
+The retry topics deliver the message later.
+
+
+==============================
+fund-transfer-events-dlt
+==============================
+6.15 Handling Dead Letter Messages
+
+@DltHandler
+public void processFailedTransfer( FundTransferEvent event){
+
+    System.out.println("Transfer moved to Dead Letter Topic");
+
+    System.out.println(event);
+
+}
+
+
+Whenever a message reaches the DLT,
+--------------------------------------
+Spring automatically invokes this method.
+
+6.16 What Can Be Done Inside @DltHandler?
+---------------------------------------
+Typical production actions include:
+----------------------------------------
+Write the failed event to an audit table.
+Send an email to the operations team.
+Create a support ticket.
+Notify administrators through Slack or Microsoft Teams.
+Store the event for manual reprocessing.
+
+The objective is not to ignore failed events but to handle them safely.
+
+6.17 End-to-End Flow
+                      Producer
+                          |
+                          |
+               fund-transfer-events
+                          |
+                          |
+               Notification Consumer
+                          |
+          --------------------------------
+          |                              |
+          |                              |
+      Success                      Exception
+          |                              |
+     SMS Sent                     Retry Topic-0
+                                         |
+                                    Retry Topic-1
+                                         |
+                                    Retry Topic-2
+                                         |
+                                         |
+                                         V
+                           fund-transfer-events-dlt
+                                         |
+                                         |
+                                   @DltHandler
+
+
+
+Consumer ack:
+---------------
+ CompletableFuture<SendResult<String, FundTransferEvent>> future =
+                kafkaTemplate.send("fund-transfer-events", fundTransferEvent);
+        System.out.println("------------------------------------------------");
+        future.whenComplete((result, ex) -> {
+            if (ex != null) {
+                System.out.println("Failed: " + ex.getMessage());
+            } else {
+                System.out.println("Broker ACK received");
+
+                RecordMetadata metadata = result.getRecordMetadata();
+
+                System.out.println("Topic     : " + metadata.topic());
+                System.out.println("Partition : " + metadata.partition());
+                System.out.println("Offset    : " + metadata.offset());
+            }
+        });
+		
+		
+spring.kafka.producer.acks=all

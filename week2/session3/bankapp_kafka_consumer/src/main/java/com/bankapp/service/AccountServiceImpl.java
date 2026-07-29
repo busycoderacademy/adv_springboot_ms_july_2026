@@ -7,18 +7,15 @@ import com.bankapp.exceptions.BankAccountNotFoundException;
 import com.bankapp.repo.AccountRepo;
 import com.bankapp.util.AccountConverter;
 import lombok.AllArgsConstructor;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 //SL=BL+ CCC
 @Service
@@ -86,23 +83,7 @@ public class AccountServiceImpl implements  AccountService{
         FundTransferEvent fundTransferEvent =
                 new FundTransferEvent(fromId, toId, amount, LocalDateTime.now());
 
-        CompletableFuture<SendResult<String, FundTransferEvent>> future =
-                kafkaTemplate.send("fund-transfer-events", fundTransferEvent);
-        System.out.println("------------------------------------------------");
-        future.whenComplete((result, ex) -> {
-            if (ex != null) {
-                System.out.println("Failed: " + ex.getMessage());
-            } else {
-                System.out.println("Broker ACK received");
-
-                RecordMetadata metadata = result.getRecordMetadata();
-
-                System.out.println("Topic     : " + metadata.topic());
-                System.out.println("Partition : " + metadata.partition());
-                System.out.println("Offset    : " + metadata.offset());
-            }
-        });
-
+        kafkaTemplate.send("fund-transfer-events", fundTransferEvent);
         //applicationEventPublisher.publishEvent(fundTransferEvent);
 
     }

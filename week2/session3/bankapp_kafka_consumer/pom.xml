@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.bankapp</groupId>
-	<artifactId>bankapp_kafka</artifactId>
+	<artifactId>bankapp_kafka_consumer</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name/>
 	<description/>
