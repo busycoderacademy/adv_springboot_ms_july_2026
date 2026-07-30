@@ -5,9 +5,10 @@ import com.busycoder.loans.dto.LoanDto;
 import com.busycoder.loans.services.LoanService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
+@RefreshScope
 @RequestMapping(path = "api")
 @RestController
 @AllArgsConstructor
@@ -19,7 +20,7 @@ public class LoanController {
     public LoanDto getByMobile( @RequestParam(name="mobile") String mobile){
         return loanService.findByMobile(mobile);
     }
-    
+
     @GetMapping("contact-info")
     public InfoDto getInfoDto(){
         return infoDto;

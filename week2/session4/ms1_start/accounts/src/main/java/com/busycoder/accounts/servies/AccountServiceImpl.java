@@ -42,7 +42,7 @@ public class AccountServiceImpl implements AccountService{
         //somehow we should able to call the
         // loans and cards ms and get the related inforation
         //http://localhost:8090/loans?mobile=7088993300
-        LoanDto loanDto =loanServiceProxy.findByMobileNumber("7088993399");
+        LoanDto loanDto =loanServiceProxy.findByMobileNumber(mobile);
         CardDto cardDto = cardServiceProxy.findByMobileNumber(mobile);
 
        // http://localhost:9090/cards?mobile=7088993300
