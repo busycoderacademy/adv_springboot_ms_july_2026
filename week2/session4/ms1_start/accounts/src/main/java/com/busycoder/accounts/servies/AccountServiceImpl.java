@@ -6,6 +6,8 @@ import com.busycoder.accounts.dto.CardDto;
 import com.busycoder.accounts.dto.LoanDto;
 import com.busycoder.accounts.entities.Account;
 import com.busycoder.accounts.repo.AccountRepo;
+import com.busycoder.accounts.serviceproxy.CardServiceProxy;
+import com.busycoder.accounts.serviceproxy.LoanServiceProxy;
 import com.busycoder.accounts.util.DtoConvertor;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +21,8 @@ import java.util.stream.Collectors;
 public class AccountServiceImpl implements AccountService{
 
     private final AccountRepo accountRepo;
-    private final RestTemplate restTemplate;
+    private final LoanServiceProxy loanServiceProxy;
+    private final CardServiceProxy cardServiceProxy;
 
     @Override
     public List<AccountDto> getAll() {
@@ -39,8 +42,8 @@ public class AccountServiceImpl implements AccountService{
         //somehow we should able to call the
         // loans and cards ms and get the related inforation
         //http://localhost:8090/loans?mobile=7088993300
-        LoanDto loanDto = restTemplate.getForObject("http://localhost:8090/api/fetch?mobile=" + mobile, LoanDto.class);
-        CardDto cardDto = restTemplate.getForObject("http://localhost:9090/api/fetch?mobile=" + mobile, CardDto.class);
+        LoanDto loanDto =loanServiceProxy.findByMobileNumber("7088993399");
+        CardDto cardDto = cardServiceProxy.findByMobileNumber(mobile);
 
        // http://localhost:9090/cards?mobile=7088993300
 

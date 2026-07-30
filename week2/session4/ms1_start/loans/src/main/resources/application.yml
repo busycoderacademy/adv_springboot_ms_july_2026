@@ -33,3 +33,12 @@ info:
 #  onCallSupport:
 #    - 54645464556
 #    - 75765777677
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:8070/eureka/

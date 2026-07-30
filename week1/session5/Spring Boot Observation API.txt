@@ -1,0 +1,303 @@
+
+
+
+Inject ObservationRegistry in Service Layer
+---------------------------------------
+Now we modify your service to add observations.
+
+
+
+Updated AccountService with ObservationRegistry
+-------------------------------------------------
+@Service
+@Transactional
+public class AccountServiceImpl implements AccountService {
+
+    private final AccountRepo accountRepo;
+    private final ObservationRegistry observationRegistry;
+
+    @Autowired
+    public AccountServiceImpl(AccountRepo accountRepo,
+                              ObservationRegistry observationRegistry) {
+        this.accountRepo = accountRepo;
+        this.observationRegistry = observationRegistry;
+    }
+
+    @Override
+    public List<AccountDto> findAll() {
+
+        return Observation.createNotStarted("account.findAll", observationRegistry)
+                .contextualName("Find All Accounts")
+                .lowCardinalityKeyValue("entity", "account")
+                .lowCardinalityKeyValue("operation", "findAll")
+                .observe(() ->
+                        accountRepo.findAll()
+                                .stream()
+                                .map(AccountConverter::convert)
+                                .toList());
+    }
+
+    @Override
+    public AccountDto findById(int id) {
+
+        return Observation.createNotStarted("account.findById", observationRegistry)
+                .contextualName("Find Account By Id")
+                .lowCardinalityKeyValue("entity", "account")
+                .lowCardinalityKeyValue("operation", "lookup")
+                .observe(() ->
+                        accountRepo.findById(id)
+                                .map(AccountConverter::convert)
+                                .orElseThrow(() ->
+                                        new BankAccountNotFoundException(
+                                                "Account with id " + id + " not found")));
+    }
+
+    @Override
+    public void create(AccountDto accountDto) {
+
+        Observation.createNotStarted("account.create", observationRegistry)
+                .contextualName("Create Account")
+                .lowCardinalityKeyValue("entity", "account")
+                .lowCardinalityKeyValue("accountType", accountDto.getAccountType())
+                .observe(() -> {
+
+                    accountRepo.save(AccountConverter.convert(accountDto));
+
+                });
+    }
+
+    @Override
+    public void deposit(int id, BigDecimal amount) {
+
+        Observation.createNotStarted("account.deposit", observationRegistry)
+                .contextualName("Deposit Money")
+                .lowCardinalityKeyValue("operation", "deposit")
+                .observe(() -> {
+
+                    Account account = accountRepo.findById(id)
+                            .orElseThrow(() ->
+                                    new BankAccountNotFoundException(
+                                            "Account with id " + id + " not found"));
+
+                    account.setBalance(account.getBalance().add(amount));
+
+                    accountRepo.save(account);
+
+                });
+    }
+
+    @Override
+    public void withdraw(int id, BigDecimal amount) {
+
+        Observation.createNotStarted("account.withdraw", observationRegistry)
+                .contextualName("Withdraw Money")
+                .lowCardinalityKeyValue("operation", "withdraw")
+                .observe(() -> {
+
+                    Account account = accountRepo.findById(id)
+                            .orElseThrow(() ->
+                                    new BankAccountNotFoundException(
+                                            "Account with id " + id + " not found"));
+
+                    account.setBalance(account.getBalance().subtract(amount));
+
+                    accountRepo.save(account);
+
+                });
+    }
+
+    @Override
+    public void transfer(int fromId,
+                         int toId,
+                         BigDecimal amount,
+                         String transactionType,
+                         String channel) {
+
+        Observation.createNotStarted("account.transfer", observationRegistry)
+                .contextualName("Fund Transfer")
+
+                // GOOD LOW CARDINALITY TAGS
+                .lowCardinalityKeyValue("operation", "transfer")
+                .lowCardinalityKeyValue("transactionType", transactionType)
+                .lowCardinalityKeyValue("channel", channel)
+                .lowCardinalityKeyValue("currency", "INR")
+
+                .observe(() -> {
+
+                    Account fromAccount = accountRepo.findById(fromId)
+                            .orElseThrow(() ->
+                                    new BankAccountNotFoundException(
+                                            "Account with id " + fromId + " not found"));
+
+                    Account toAccount = accountRepo.findById(toId)
+                            .orElseThrow(() ->
+                                    new BankAccountNotFoundException(
+                                            "Account with id " + toId + " not found"));
+
+                    fromAccount.setBalance(
+                            fromAccount.getBalance().subtract(amount));
+
+                    toAccount.setBalance(
+                            toAccount.getBalance().add(amount));
+
+                    accountRepo.save(fromAccount);
+                    accountRepo.save(toAccount);
+
+                });
+    }
+
+    @Override
+    public void delete(int id) {
+
+        Observation.createNotStarted("account.delete", observationRegistry)
+                .contextualName("Delete Account")
+                .lowCardinalityKeyValue("operation", "delete")
+                .observe(() -> {
+
+                    Account account = accountRepo.findById(id)
+                            .orElseThrow(() ->
+                                    new BankAccountNotFoundException(
+                                            "Account with id " + id + " not found"));
+
+                    accountRepo.delete(account);
+
+                });
+    }
+}
+
+
+
+
+
+
+7. View Observations in Actuator
+------------------------------
+Observe metrics
+GET /actuator/metrics
+
+
+Look for:
+----------
+product.findAll
+product.getById
+product.add
+product.update
+product.delete
+
+
+Example:
+------------
+GET /actuator/metrics/product.getById
+
+8. What You Get Automatically
+-----------------------------
+With ZERO additional setup, you get:
+
+✔ Execution time
+✔ Errors recorded
+✔ Low cardinality labels
+✔ Tracing spans (Zipkin/Jaeger)
+✔ Metrics for Prometheus/Grafana
+✔ Logs correlated with traceId/spanId
+
+This is the new way to instrument business logic in Spring Boot 3.x.
+
+
+
+
+@Service
+@Transactional
+public class ProductServiceImpl implements ProductService {
+
+    private final ProductDao productDao;
+    private final ObservationRegistry observationRegistry;
+
+    @Autowired
+    public ProductServiceImpl(ProductDao productDao, ObservationRegistry observationRegistry) {
+        this.productDao = productDao;
+        this.observationRegistry = observationRegistry;
+    }
+
+    @Override
+    public List<Product> findAll() {
+        return Observation.createNotStarted("product.findAll", observationRegistry)
+                .observe(() -> productDao.findAll());
+    }
+
+    @Override
+    public Product getById(int id) {
+        return Observation.createNotStarted("product.getById", observationRegistry)
+                .contextualName("get-product-by-id")
+                .lowCardinalityKeyValue("product.id", String.valueOf(id))
+                .observe(() -> productDao.findById(id)
+                        .orElseThrow(() -> new ProductNotFoundException("product with id" + id + " is not found"))
+                );
+    }
+
+    @Override
+    public Product addProduct(Product product) {
+        return Observation.createNotStarted("product.add", observationRegistry)
+                .contextualName("add-product")
+                .observe(() -> {
+                    productDao.save(product);
+                    return product;
+                });
+    }
+
+    @Override
+    public Product updateProduct(int id, Product product) {
+        return Observation.createNotStarted("product.update", observationRegistry)
+                .contextualName("update-product")
+                .observe(() -> {
+                    Product productToUpdate = getById(id);
+                    productToUpdate.setPrice(product.getPrice());
+                    productDao.save(productToUpdate);
+                    return productToUpdate;
+                });
+    }
+
+    @Override
+    public Product deleteProduct(int id) {
+        return Observation.createNotStarted("product.delete", observationRegistry)
+                .contextualName("delete-product")
+                .observe(() -> {
+                    Product productToDelete = getById(id);
+                    productDao.delete(productToDelete);
+                    return productToDelete;
+                });
+    }
+}
+
+
+7. View Observations in Actuator
+------------------------------
+Observe metrics
+GET /actuator/metrics
+
+
+Look for:
+----------
+product.findAll
+product.getById
+product.add
+product.update
+product.delete
+
+
+Example:
+------------
+GET /actuator/metrics/product.getById
+
+8. What You Get Automatically
+-----------------------------
+With ZERO additional setup, you get:
+
+✔ Execution time
+✔ Errors recorded
+✔ Low cardinality labels
+✔ Tracing spans (Zipkin/Jaeger)
+✔ Metrics for Prometheus/Grafana
+✔ Logs correlated with traceId/spanId
+
+This is the new way to instrument business logic in Spring Boot 3.x.
+

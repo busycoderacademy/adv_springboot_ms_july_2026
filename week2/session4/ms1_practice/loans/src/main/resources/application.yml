@@ -1,0 +1,47 @@
+server:
+  port: 8090
+spring:
+  profiles:
+    active:
+      - "qa"
+  application:
+    name: loans
+  jpa:
+    show-sql: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      enabled: true
+  info:
+    env:
+      enabled: true
+info:
+  message: "welcome to loan application default profile"
+  name: "raj default profile"
+
+eureka:
+  instance:
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8070/eureka/
+
+#spring:
+#  application:
+#    name: bankapp
+#account:
+#  message: "welcome to productapp account manager"
+#  contactDetails:
+#    name: "raj"
+#    email: "rgupta.mtech@gmail.com"
+#  onCallSupport:
+#    - 54645464556
+#    - 75765777677

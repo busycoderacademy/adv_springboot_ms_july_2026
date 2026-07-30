@@ -1,0 +1,41 @@
+package com.busycoder.accounts;
+
+import com.busycoder.accounts.dto.InfoDto;
+import com.busycoder.accounts.entities.Account;
+import com.busycoder.accounts.repo.AccountRepo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
+@EnableFeignClients("com.busycoder.accounts.serviceproxy")
+@SpringBootApplication
+@EnableConfigurationProperties(InfoDto.class)
+@EnableDiscoveryClient
+public class AccountsApplication implements CommandLineRunner {
+
+	@Autowired
+	private AccountRepo accountRepo;
+
+	public static void main(String[] args) {
+		SpringApplication.run(AccountsApplication.class, args);
+	}
+
+	@Override
+	public void run(String... args) throws Exception {
+		accountRepo.save(new Account("raj",1000,"raj@gmail.com", "7088993300"));
+
+		accountRepo.save(new Account("ekta",1000,"ekta@gmail.com", "7988223300"));
+
+	}
+
+	@Bean
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+
+}
