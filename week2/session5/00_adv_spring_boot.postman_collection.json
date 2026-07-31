@@ -1,0 +1,689 @@
+{
+  "info": {
+    "_postman_id": "f444bb71-d700-4b8d-93f4-46cbd263a630",
+    "name": "00_adv_spring_boot",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "1432109"
+  },
+  "item": [
+    {
+      "name": "bankapp_monolith",
+      "item": [
+        {
+          "name": "Get All Accounts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8090/bankapp/api/v1/accounts",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8090",
+              "path": [
+                "bankapp",
+                "api",
+                "v1",
+                "accounts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8090/bankapp/api/v1/accounts/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8090",
+              "path": [
+                "bankapp",
+                "api",
+                "v1",
+                "accounts",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create new account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"accountHolderName\" : \"keshav\",\r\n    \"balance\": 1000\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8090/bankapp/api/v1/accounts",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8090",
+              "path": [
+                "bankapp",
+                "api",
+                "v1",
+                "accounts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8090/bankapp/api/v1/accounts/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8090",
+              "path": [
+                "bankapp",
+                "api",
+                "v1",
+                "accounts",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Deposit",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\": 1,\r\n    \"amount\": 400\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8090/bankapp/api/v1/accounts/deposit",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8090",
+              "path": [
+                "bankapp",
+                "api",
+                "v1",
+                "accounts",
+                "deposit"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Withdraw",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\": 1,\r\n    \"amount\": 300\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8090/bankapp/api/v1/accounts/withdraw",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8090",
+              "path": [
+                "bankapp",
+                "api",
+                "v1",
+                "accounts",
+                "withdraw"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Transfer",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"fromAccountId\": 1,\r\n    \"toAccountId\": 2,\r\n    \"amount\": 170\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8090/bankapp/api/v1/accounts/transfer",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8090",
+              "path": [
+                "bankapp",
+                "api",
+                "v1",
+                "accounts",
+                "transfer"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "sec basics",
+      "item": [
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8091/bankapp/home",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8091",
+              "path": [
+                "bankapp",
+                "home"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "1-generate token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8091/bankapp/home",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8091",
+              "path": [
+                "bankapp",
+                "home"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2-send token for each request",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8091/bankapp/home",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8091",
+              "path": [
+                "bankapp",
+                "home"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Microservice_bankapp",
+      "item": [
+        {
+          "name": "accounts",
+          "item": [
+            {
+              "name": "get info",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"fromAccountId\": 1,\r\n    \"toAccountId\": 2,\r\n    \"amount\": 170\r\n}"
+                },
+                "url": {
+                  "raw": "http://localhost:8080/api/contact-info",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "api",
+                    "contact-info"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get all accounts",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"fromAccountId\": 1,\r\n    \"toAccountId\": 2,\r\n    \"amount\": 170\r\n}"
+                },
+                "url": {
+                  "raw": "http://localhost:8080/api/fetchall",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "api",
+                    "fetchall"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get account by id and other info",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"fromAccountId\": 1,\r\n    \"toAccountId\": 2,\r\n    \"amount\": 170\r\n}"
+                },
+                "url": {
+                  "raw": "http://localhost:8080/api/accountsdetails?mobile=7088993300",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "api",
+                    "accountsdetails"
+                  ],
+                  "query": [
+                    {
+                      "key": "mobile",
+                      "value": "7088993300"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "loan",
+          "item": [
+            {
+              "name": "GetLoanInfoByPhoneNo Copy",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"fromAccountId\": 1,\r\n    \"toAccountId\": 2,\r\n    \"amount\": 170\r\n}"
+                },
+                "url": {
+                  "raw": "http://localhost:8090/api/fetch?mobile=7088993300",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8090",
+                  "path": [
+                    "api",
+                    "fetch"
+                  ],
+                  "query": [
+                    {
+                      "key": "mobile",
+                      "value": "7088993300"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Contect info loan app",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:8090/api/contact-info",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8090",
+                  "path": [
+                    "api",
+                    "contact-info"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "refresh end point",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:8090/api/contact-info",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8090",
+                  "path": [
+                    "api",
+                    "contact-info"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "cards",
+          "item": [
+            {
+              "name": "GetCardByPhoneNo",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"fromAccountId\": 1,\r\n    \"toAccountId\": 2,\r\n    \"amount\": 170\r\n}"
+                },
+                "url": {
+                  "raw": "http://localhost:9093/api/fetch?mobile=7088993300",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "9093",
+                  "path": [
+                    "api",
+                    "fetch"
+                  ],
+                  "query": [
+                    {
+                      "key": "mobile",
+                      "value": "7088993300"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Contect info card app",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:9093/api/contact-info",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "9093",
+                  "path": [
+                    "api",
+                    "contact-info"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "gateway",
+          "item": [
+            {
+              "name": "Contact info for cards app",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"fromAccountId\": 1,\r\n    \"toAccountId\": 2,\r\n    \"amount\": 170\r\n}"
+                },
+                "url": {
+                  "raw": "http://localhost:8072/busycoder/cards/api/contact-info",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8072",
+                  "path": [
+                    "busycoder",
+                    "cards",
+                    "api",
+                    "contact-info"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get all accounts Copy",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"fromAccountId\": 1,\r\n    \"toAccountId\": 2,\r\n    \"amount\": 170\r\n}"
+                },
+                "url": {
+                  "raw": "http://localhost:8072/busycoder/accounts/api/fetchall",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8072",
+                  "path": [
+                    "busycoder",
+                    "accounts",
+                    "api",
+                    "fetchall"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get account by id and other info Copy",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"fromAccountId\": 1,\r\n    \"toAccountId\": 2,\r\n    \"amount\": 170\r\n}"
+                },
+                "url": {
+                  "raw": "http://localhost:8072/busycoder/accounts/api/accountsdetails?mobile=7088993300",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8072",
+                  "path": [
+                    "busycoder",
+                    "accounts",
+                    "api",
+                    "accountsdetails"
+                  ],
+                  "query": [
+                    {
+                      "key": "mobile",
+                      "value": "7088993300"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Contect info account app",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8072/busycoder/accounts/api/contact-info",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8072",
+              "path": [
+                "busycoder",
+                "accounts",
+                "api",
+                "contact-info"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Contect info loan app",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8072/busycoder/loans/api/contact-info",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8072",
+              "path": [
+                "busycoder",
+                "loans",
+                "api",
+                "contact-info"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "resilance4j",
+      "item": [
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
