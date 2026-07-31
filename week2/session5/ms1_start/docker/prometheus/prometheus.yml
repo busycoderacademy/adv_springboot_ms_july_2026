@@ -1,0 +1,30 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+
+  - job_name: prometheus
+    static_configs:
+      - targets:
+          - "prometheus:9090"
+
+  - job_name: account-service
+    metrics_path: /actuator/prometheus
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - "host.docker.internal:8080"
+
+  - job_name: loan-service
+    metrics_path: /actuator/prometheus
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - "host.docker.internal:8090"
+
+  - job_name: card-service
+    metrics_path: /actuator/prometheus
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - "host.docker.internal:9090"
