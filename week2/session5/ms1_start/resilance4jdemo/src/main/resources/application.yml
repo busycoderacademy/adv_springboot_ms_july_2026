@@ -1,0 +1,19 @@
+#spring.main.allow-bean-definition-overriding=true
+server:
+  port: 8085
+spring:
+  application:
+    name: resilance4jdemo
+  jpa:
+    show-sql: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      enabled: true
+  info:
+    env:
+      enabled: true

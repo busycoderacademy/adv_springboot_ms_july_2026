@@ -141,6 +141,21 @@ public class SecConfig {
 }
 
 
+
+
+
+
+The purpose of these two beans is:
+------------------------------------------------
+Tell Spring Security where users come from (UserDetailsService)
+Tell Spring Security how passwords should be verified (PasswordEncoder)
+
+Once Spring sees these beans, it can automatically configure a DaoAuthenticationProvider 
+for username/password authentication.
+
+
+
+
 Authorization:
 ----------------
 
@@ -163,6 +178,13 @@ Authorization:
 
         return http.build();
     }
+
+
+Note:
+SessionCreationPolicy.STATELESS tells Spring Security not to create or use an HttpSession for storing the SecurityContext.
+ Therefore, the Authentication object is not preserved across requests.
+ Every request must provide its own credentials (Basic Auth) or JWT, and Spring Security 
+ authenticates the request again before processing it
 
 
 

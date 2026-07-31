@@ -489,18 +489,24 @@ logging.pattern.file= "%d{yyyy-MM-dd } [%thread] %-5level %logger{36} - %msg%n"
 
 spring.jpa.show-sql=true 
 spring.banner.location=	
+
+
 spring.jmx.enabled=true
+
 management.endpoints.web.exposure.include=*
+
 management.endpoints.jmx.exposure.include=*
+
 management.info.env.enabled=true
 info.app.encoding=UTF-8
 info.app.java.source=21
 info.app.java.target=21
-info.app.name=productapp
+info.app.name=Bankapp
 info.app.dev=amit ku
 
 management.endpoint.health.show-details=always
 management.endpoint.health.probes.enabled=true
+
 # livenessstate readinessstate
 #management.health.livenessstate.enabled=true
 #management.health.readinessstate.enabled=true
@@ -663,15 +669,21 @@ public interface AccountRepo extends JpaRepository<Account, Integer> {
         from Account a
         where a.id = :id
     """)
-    Optional<AccountSummary> findAccountSummaryById(
-            @Param("id") int id
-    );
+    Optional<AccountSummary> findAccountSummaryById( @Param("id") int id);
 }
 
 
 
 TxHistoryRepository
 -------------------
+
+public interface TxView {
+    BankTxType getType();
+    BigDecimal getAmount();
+    BigDecimal getBalanceAfterTx();
+    LocalDateTime getTxTime();
+}
+
 
 @Repository
 public interface TxHistoryRepo extends JpaRepository<TxHistory, Long> {
@@ -1285,6 +1297,8 @@ spring boot reading property files:
 @EnableConfigurationProperties(Config.class)
 @ConfigurationProperties(prefix = "msg")
 
+spring boot profile
+how to start spring boot app from cmd
 
 
 
