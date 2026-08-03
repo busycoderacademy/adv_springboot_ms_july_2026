@@ -1,0 +1,891 @@
+Docker for spring boot dev:
+--------------------------------
+
+Basic Docker commands
+-------------------
+docker -v
+docker --version
+
+docker info
+
+give complete info about docker, how many container runnnig, pause etc
+
+docker --help
+
+docker images
+____________
+give details of all images on local docker installation
+
+docker images --help
+
+to delete all containers		docker container rm c0
+________________________
+docker ps -a -q | ForEach-Object { docker rm $_ }
+docker rm $(docker ps -a -q)
+
+Remove all stopped containers, use:
+-------------------------------
+docker container prune
+
+If you want to wipe everything (containers + images + networks)
+docker system prune -a
+
+
+to delete all images:
+___________________________
+docker rmi $(docker images -q)
+
+delete all docker existing iamages:
+____________________________________
+docker rmi -f $(docker images -a -q)
+
+docker pull
+____________
+docker pull ubuntu:latest		docker image pull ubuntu (new command)
+docker pull --help
+
+docker rmi
+___________
+to remove one/more docker images	docker image rm <image-id> (new command)
+docker rmi --help
+
+docker ps
+__________
+docker ps -a				docker container ls -a (new commands)
+ it show all container wheter running or not
+
+
+It deletes everything(container , images, cache, etc..)
+____________________________________________________
+docker system prune
+
+
+docker run
+____________
+ docker pull ubuntu:latest
+ docker container run -it ubuntu
+ apt-get update && apt-get install git
+ apt-get install openjdk-11-jdk
+
+ docker run -it ubuntu		docker container run -it ubuntu
+
+
+docker start
+_____________
+ docker start <id>		docker container start <id>
+ 
+docker stop 
+__________
+ docker stop <id>		docker container stop <id>
+
+docker stats
+_______________
+show the status of running container
+docker stats
+
+
+running tomcat image: web container (sb embedded tomcat container)
+____________________
+docker image pull tomcat:latest
+docker container run -d -p 8080:8080 tomcat
+docker container run -d -p 8090:8080 tomcat
+
+checking running container
+--------------------------
+docker ps
+
+checking logs
+------------------
+docker logs a1b2c3d4e5f6
+docker container logs -f <id>
+
+
+Command to open an interactive shell inside a running Docker container. 
+Think of it as “SSH into the container,” but using Docker directly
+-----------------------------------------
+docker exec -it cid sh
+
+
+
+
+running container
+____________________
+docker container run --name my_first_con busybox:latest
+
+
+
+Docker image
+______________
+to see all images
+__________________
+docker image ls
+
+
+How to pull Docker image?
+_________________________
+docker pull python:latest
+
+inspecting an image:
+_________________
+docker inspect ubuntu
+
+ history of an image:
+_________________
+docker history ubuntu
+
+
+
+classic and modern docker commnads:
+_________________________________
+docker pull ubuntu (old command)
+or 
+docker image pull ubuntu (new command)
+
+
+old command are confusing ex: list the name of container , list name of images
+docker ps (docker process) give list of container (not very intitive name)
+docker ps -a (stop container)
+
+new command:
+___________
+docker container ls -a  ( same as docker ps -a)
+docker image ls -a
+
+docker help:
+____________
+
+docker help
+
+Management Commands: modern commands
+_______________________
+  app*        Docker App (Docker Inc., v0.9.1-beta3)
+  builder     Manage builds
+  buildx*     Build with BuildKit (Docker Inc., v0.5.1-docker)
+  config      Manage Docker configs
+  container   Manage containers
+  context     Manage contexts
+  image       Manage images
+  manifest    Manage Docker image manifests and manifest lists
+  network     Manage networks
+  node        Manage Swarm nodes
+  plugin      Manage plugins
+  ......
+  ........
+
+
+
+Commands: classical commands
+_____________
+  attach      Attach local standard input, output, and error streams to a running container
+  build       Build an image from a Dockerfile
+  commit      Create a new image from a container's changes
+  cp          Copy files/folders between a container and the local filesystem
+  create      Create a new container
+  diff        Inspect changes to files or directories on a container's filesystem
+  events      Get real time events from the server
+  exec        Run a command in a running container
+  export      Export a container's filesystem as a tar archive
+  history     Show the history of an image
+  images      List images
+  import      Import the contents from a tarball to create a filesystem image
+  ......
+  .....
+
+docker run --name my_first_con busybox:latest
+
+docker run --detach --interactive --tty --name alpine alpine:latest
+
+
+How to run nginx image with volume
+---------------------------------
+docker run --name some-nginx -v /home/raj/Desktop/demo:/usr/share/nginx/html:ro -d nginx
+
+Dont forget to do port binding!
+-----------------------------------
+docker run --name some-nginx -v C:\data:/usr/share/nginx/html:ro -d nginx
+
+
+Example mongodb with docker:
+________________________
+mongodb with docker:
+____________________
+what is port mapping?
+What is volume mapping?
+
+mkdir mongodb_exp
+cd mongodb_exp
+
+spring boot +mongdb
+
+assignment  : how to run spring boot app with mongodb
+docker pull mongo:latest
+docker run -d -p 2717:27017 --name mymongo mongo:latest
+
+C:\mongodb\db
+
+docker run -d -p 2717:27017 -v C:/mongodb/db:/data/db --name mymongo mongo:latest
+
+docker run -d -p 2717:27017 -v /home/raj/Desktop/db:/data/db --name mymongo mongo:latest
+
+docker exec -it mymongo bash
+
+run all mongo commands
+
+mongo localhost:2717
+mongosh
+
+use rajdb;	
+db.employees.insert({empName:"ekta", age:"36", salary:"60000"})
+db.employees.find()
+
+spring:
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: testdb
+
+
+
+Docker basics:
+-------------
+docker container run -d -p 8090:8080 tomcat
+
+
+we have run some basics command
+--------------------------------
+
+Approach to create docker images :
+--------------------------------
+1. using docker file
+	we need to write a docker file with list of all instructions
+	which can be passed to the docker server to generate docker image using
+	given instructions
+	
+2. Buildpack
+	Buildpack is the project initiated by heroku and pivotal and now hosted on CNCF
+	it is simplified containization ,as we dont need to write docker file 
+	https://buildpacks.io/
+	
+3. google gib
+	jib is open source java tool maintained by google for building images of java application only
+	it is simplified containization ,as we dont need to write docker file 
+
+Comparision of 3 apporach:
+---------------------------------
+https://buildpacks.io/features/
+https://medium.com/spring-boot/speed-up-and-downsize-spring-boot-built-image-from-dockerfile-to-buildpack-to-jib-aad0674643ee#:~:text=For%20building%20image%20speed%3A,is%20always%20slower%20than%20others.
+
+
+Approach 1: using docekr file : Docker hello world spring boot:
+------------------------------------------------------------
+server:
+  port: 8080
+spring:
+  application:
+    name: product-service
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+  health:
+    readinessstate:
+      enabled: true
+    livenessstate:
+      enabled: true
+
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+
+step 1: create empapp project, create ProductController 
+
+	Give final name inside build :<finalName>productapp</finalName>
+
+@RestController
+public class ProductController {
+
+    @Autowired
+    private InstanceInformationService instanceInformationService;
+
+    @GetMapping(path = "hello-world")
+    public String hello() {
+        return "hello " + instanceInformationService.retrieveInstanceInfo();
+    }
+}
+
+
+@Service
+public class InstanceInformationService {
+
+    private static final String HOST_NAME = "HOSTNAME";
+    private static final String DEFAULT_ENV_INSTANCE_GUID = "LOCAL";
+
+    @Value("${spring.application.name}")
+    private String appName;
+
+    @Value("${server.port}")
+    private String port;
+
+    @Value("${" + HOST_NAME + ":" + DEFAULT_ENV_INSTANCE_GUID + "}")
+    private String hostName;
+
+    public String retrieveInstanceInfo() {
+        return appName + " : " + port + " : " +
+               hostName.substring(hostName.length() - 5);
+    }
+}
+
+try to call it locally
+http://localhost:8080/actuator/health/readiness
+
+
+
+step 2: Create Dockerfile
+________________________
+FROM eclipse-temurin:21-jdk
+LABEL maintainer="rgupta.mtech@gmail.com"
+EXPOSE 8090
+ADD target/productapp.jar productapp.jar
+ENTRYPOINT ["java","-jar","/productapp.jar"]
+
+
+
+step 3: create image using command
+
+docker build -t rgupta00/productapp:1.1 .
+
+docker image ls
+
+step 4: run image 
+docker container run --name producer -p 8090:8090 -d rgupta00/productapp:1.1
+
+docker container logs <id>
+
+docker container logs -f <id>
+
+step 5: push image to docker hub
+
+first login : docker login
+
+then run command : 
+
+	docker push rgupta00/productapp:1.1
+
+step 6: pull image from the docker hub
+
+docker pull rgupta00/productapp:1.1
+
+step 7: other person now can pull the image
+
+	remove the images 
+	docker images
+	docker image rmi <imgid> -f
+	
+now pull the image and run it
+
+docker run --name productapp -p 8090:8090 rgupta00/productapp:1.1
+docker container run --name productapp -p 8090:8090 -d rgupta00/productapp:1.1
+
+
+
+
+Approach 2: Spring boot with Build pack step to follow:
+-----------------------------------------------------
+
+1. Add the configuration in the pom.xml
+
+          <plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<image>
+						<name>rgupta00/${project.artifactId}:1.6</name>
+					</image>
+				</configuration>
+			</plugin>
+			
+2. Run the maven command from the location where pom.xml is visible
+mvn spring-boot:build-image
+
+3. Execute the docker command
+docker run -p 8090:8080 rgupta00/productapp:v1
+
+
+
+
+Approach 2: google gib step to follow:
+-------------------------
+Jib builds containers without using a Dockerfile or requiring a Docker installation.
+ You can use Jib in the Jib plugins for Maven or Gradle, or you can use the Jib Java library.
+ 
+ https://cloud.google.com/java/getting-started/jib
+ https://github.com/GoogleContainerTools/jib
+ 
+  
+ <image>gcr.io/distroless/java17</image> 
+1. Add the configuration in the pom.xml
+
+        <plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<version>3.4.1</version>
+				<configuration>
+					<from>
+						<image>openjdk:21</image>
+					</from>
+					<to>
+						<image>rgupta00/${project.artifactId}:v2</image>
+					</to>
+				</configuration>
+			</plugin>
+	  
+	  <plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<version>3.3.2</version>
+				<configuration>
+					<from>
+						<image>eclipse-temurin:21-jre</image>
+					</from>
+					<to>
+						<image>rgupta00/${project.artifactId}:v1</image>
+					</to>
+				</configuration>
+</plugin>
+
+2. Run the maven command from the location where pom.xml is visible
+mvn compile jib:dockerBuild
+
+3. Execute the docker command
+docker run -p 8090:8080 rgupta00/empapp:v1
+
+
+Docker networking:
+------------------
+https://www.geeksforgeeks.org/basics-of-docker-networking/
+
+
+The way Docker has been designed such that a Docker Container should have only a single service running. 
+Again we can have multiple services running in docker using some workarounds but this will not be a good design. 
+So we will be deploying the two microservices employee-producer and employee-consumer to 
+two different containers and then have them interact with each other.
+In order to achieve this will have to make use of the docker networking commands.
+
+
+step 1: create emp-producer project, create hello controller 
+
+Give final name inside build :<finalName>productapp</finalName>
+
+public class Product {
+    private int id;
+    private String name;
+    private double price;
+}
+
+@RestController
+public class ProductController {
+
+    @GetMapping(path = "product")
+    public Product getProduct() {
+        return new Product(101, "Laptop", 55000);
+    }
+}
+
+server.port=8080
+spring.application.name=productapp
+
+test and run it
+
+give final name 
+<build>
+    <finalName>productapp</finalName>
+</build>
+
+step 2: Create Dockerfile
+
+FROM eclipse-temurin:21-jdk
+LABEL maintainer="rgupta.mtech@gmail.com"
+EXPOSE 8080
+ADD target/productapp.jar productapp.jar
+ENTRYPOINT ["java","-jar","/productapp.jar"]
+
+step 3: create image using command
+docker build -t productapp .
+
+docker image ls
+
+step 4: run image 
+docker container run --name productapp -p 8080:8080 -d productapp
+
+
+Now lets create productapp-client to consume productapp rest endpoint
+------------------------------------------------------
+public class Product {
+    private int id;
+    private String name;
+    private double price;
+}
+
+
+@RestController
+public class ProductConsumerController {
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @GetMapping(path = "product-consumer")
+    public String getProduct() {
+        Product product =
+                restTemplate.getForObject("http://productapp:8080/product", Product.class);
+
+        return product.toString();
+    }
+}
+
+
+@SpringBootApplication
+public class ProductClientApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ProductClientApplication.class, args);
+    }
+
+    @Bean
+    public RestTemplate getRestTemplate() {
+        return new RestTemplate();
+    }
+}
+
+
+server.port=8081
+spring.application.name=productapp-client
+
+
+<build>
+    <finalName>productapp-client</finalName>
+</build>
+
+
+
+Create Dockerfile
+------------------
+FROM eclipse-temurin:21-jdk
+LABEL maintainer="rgupta.mtech@gmail.com"
+EXPOSE 8081
+ADD target/productapp-client.jar productapp-client.jar
+ENTRYPOINT ["java","-jar","productapp-client.jar"]
+
+
+
+docker build -t productapp-client .
+docker container run --name consumer -p 8081:8081 -d productapp-client
+docker container logs <id>
+
+java.net.UnknownHostException: productapp
+
+Without docker compose thing are painfull: 
+--------------------------------
+we need to create docker networking manually
+
+docker network ls
+
+Next we will create our own network will be of type bridge
+docker build -t productapp .
+docker build -t productapp-client .
+
+docker network create product-network
+
+Lets start the productapp producer container on the newly created network.
+docker container run --network product-network --name producer -p 8080:8080 -d productapp
+
+Lets start the productapp consumer+ container on the newly created network.
+docker container run --network product-network --name consumer -p 8081:8081 -d productapp-client
+
+Lets check the consumer container logs-
+docker container logs consumer
+
+
+Deploying Multiple Spring Boot Microservices using Docker Compose
+________________________________________________________________
+Previously we had to do the lots of step manually
+
+The above steps can be automated using docker compose.
+
+Compose is a tool for defining and running multi-container Docker applications. 
+With Compose, you use a YAML file to configure your application's services. 
+
+Then, with a single command, you create and start all the services from your configuration.
+
+Using docker-compose we will be creating the custom network named product-network
+and then starting the containers productapp and productapp-client
+
+
+
+Using Compose is basically a three-step process-
+_______________________________________________
+	1. Define your app's environment with a Dockerfile so it can be reproduced anywhere.
+
+	2. Define the services that make up your app in docker-compose.yml 
+		so they can be run together in an isolated environment.
+
+	3. Run docker-compose up and Compose starts and runs your entire app.
+
+
+
+Deploying Multiple Spring Boot Microservices using Docker Compose
+________________________________________________________________
+docker-compose.yml
+-------------------
+version: "3"
+services:
+  productapp:
+    image: productapp
+    container_name: productapp
+    ports:
+      - "8080:8080"
+    networks:
+      - product-network
+
+  productapp-client:
+    image: productapp-client
+    container_name: productapp-client
+    ports:
+      - "8081:8081"
+    depends_on:
+      - productapp
+    networks:
+      - product-network
+
+networks:
+  product-network:
+  
+now run:
+docker-compose up
+
+
+5. Test
+Producer
+http://localhost:8080/product
+
+Consumer
+http://localhost:8081/product-consumer
+
+Better configuration:
+-----------------------
+version: "3.8"
+
+services:
+
+  productapp:
+    image: productapp:latest
+    container_name: productapp
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    networks:
+      - product-network
+
+  productapp-client:
+    image: productapp-client:latest
+    container_name: productapp-client
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    depends_on:
+      - productapp
+    networks:
+      - product-network
+
+networks:
+  product-network:
+    driver: bridge
+	
+	
+
+Deploy Spring Boot + MYSQL Application to Docker
+_________________________________________________
+
+We will run two containers:
+------------------------------
+productapp → Spring Boot REST API
+mysql → MySQL 8 database
+Both containers run on the same Docker network, 
+allowing the app to connect to the database using the service name as hostname.
+
+dao layer:
+__________
+@Entity
+@Table(name="product_table_docker")
+public class Product {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    private String name;
+    private Double price;
+}
+
+@Repository
+public interface ProductRepo extends JpaRepository<Product, Integer> {
+}
+
+public interface ProductService {
+    List<Product> getAll();
+    Product save(Product product);
+}
+
+
+service layer:
+__________
+@Service
+@Transactional
+public class ProductServiceImpl implements ProductService {
+
+    @Autowired
+    private ProductRepo productRepo;
+
+    @Override
+    public List<Product> getAll() {
+        return productRepo.findAll();
+    }
+
+    @Override
+    public Product save(Product product) {
+        return productRepo.save(product);
+    }
+}
+
+
+
+RestController layer:
+__________________
+
+@RestController
+public class ProductRestController {
+
+    @Autowired
+    private ProductService productService;
+
+    @GetMapping(path = "products")
+    public List<Product> allProducts() {
+        return productService.getAll();
+    }
+
+    @PostMapping(path = "products")
+    public Product addProduct(@RequestBody Product product) {
+        return productService.save(product);
+    }
+}
+
+Spring Boot Configuration (Using Placeholders)
+-------------------------------------------
+server:
+  port: ${SERVER_PORT:8080}
+spring:
+  application:
+    name: productapp
+  datasource:
+    url: jdbc:mysql://${DB_HOST:mysqldb}:${DB_PORT:3306}/${DB_NAME:productdb}?useSSL=false&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.hibernate: ERROR
+
+http://localhost:8080/products
+
+
+change connection to mysqldb(docker mysql container)
+____________________________________________________
+jdbc:mysql://mysqldb/customerapp
+
+mvn clean package -DskipTests
+
+
+
+Dockerfile
+-------------------
+FROM eclipse-temurin:21-jdk
+LABEL maintainer="rgupta.mtech@gmail.com"
+EXPOSE 8080
+ADD target/productappdb.jar productappdb.jar
+ENTRYPOINT ["java","-jar","productappdb.jar"]
+
+
+Create docker image:
+-----------------------
+docker build -t productappdb .
+
+
+docker-compose.yml as follow
+_________________________________
+version: "3.8"
+services:
+  mysqldb:
+    image: mysql:8
+    container_name: mysqldb
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: productdb
+      MYSQL_USER: productuser
+      MYSQL_PASSWORD: productpass
+    ports:
+      - "3308:3306"
+    networks:
+      - product-network
+
+  productappdb:
+    build: .
+    container_name: productappdb
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: mysqldb
+      DB_PORT: 3306
+      DB_NAME: productdb
+      DB_USERNAME: root
+      DB_PASSWORD: root
+    depends_on:
+      - mysqldb
+    networks:
+      - product-network
+
+networks:
+  product-network:
+    driver: bridge
+
+
+
+
+
+
+Build and start everything
+docker compose up --build
+
+Run in background
+docker compose up -d
+
+Check containers
+docker ps
+
+
+
+docker system df
+docker system df
+docker volume prune
+
+

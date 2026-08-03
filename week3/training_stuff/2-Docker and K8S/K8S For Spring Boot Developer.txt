@@ -1,0 +1,2413 @@
+K8S cheetsheet:
+---------------
+
+while (1) {kubectl get all;sleep 5;cls}
+agenda:
+-------
+* Setup kind local cluster
+* Pods
+* Replicaset
+* Deployment
+* services
+* namespace
+* probes
+* configMap and secreat
+* persitance volume and statefullness
+* HPA - Horizontal pod autoscaling
+* ingress
+
+
+How to do local setup while learing k8s:
+---------------------------------------
+kind cluster config
+1. install kubectl (client utilty to interact with k8s infra)
+2. kind cluster
+
+-----------------------
+Setup kind local cluster
+------------------------
+
+docker system prune -af
+docker network ls
+
+ls ~/.kube/config
+
+Step 1: create cluster configuration file
+
+01-cluster.yaml
+----------------
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: dev-cluster
+nodes:
+- role: control-plane
+  extraPortMappings:
+  - containerPort: 30001
+    hostPort: 30001
+    protocol: TCP
+- role: worker
+- role: worker
+
+
+step 2: create kind cluster
+-----------------------------
+ kind create cluster --config .\01-cl.yaml  
+ 
+ to delete cluster:
+  kind delete cluster --name dev-cluster
+  
+ 
+ What it do?
+ This will create local cluster with 3 nodes
+ 1 master and 2 worker node
+ 
+ docker ps	
+ 	command will list nodes
+ 	dev-cluster-worker-1
+ 	dev-cluster-worker-2
+ 	dev-cluster-control-plan-3
+ It will also create a bride network to conn bw different nodes
+ 
+ 
+  cat ~/.kube/config
+  will give information where the cluster, ip networking is running
+  
+ Now kubectl able to talk to master check command
+ 
+ kubectl version --output=yaml
+ -------------
+  get all notes in the cluster
+  	
+  kubectl get nodes
+ 
+  to delete the cluster
+  
+  kind delete cluster --name dev-cluster
+  
+  
+  Exploring kind cluster
+  -----------------------
+  docker ps
+  
+  docker exec -it <cid> bash		now we are inside the master node
+  
+  cd /etc/kubernetes/manifests
+  ls -l				will display all yaml file related to master node
+  
+  ps -aux				process running within control plan
+  
+  Now explore worker node:
+ 
+ a07f40b83057
+ 
+   docker exec -it a07f40b83057 bash
+ 
+
+
+  -------------
+   	Pods
+  -------------
+ 
+	Command K8s
+	------------
+	to create k8s cluster
+	kind create cluster --config 01-cluster.yaml 
+
+	to delete k8s cluster
+	kind delete cluster --name dev-cluster
+
+	get nodes in the cluster
+	kubectl get nodes
+
+	get pods in default ns
+	kubectl get pod
+
+
+Pod hello world:
+ ---------------
+   step 1: start cluster
+   step 2: create yaml file
+   step 3: run the command
+   	
+   Main Component of Pod manifest file:
+   
+   apiVersion:
+   kind:
+   metadata:
+   spec:	
+   	
+01-pod.yaml 
+---------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: productapp-pod
+  labels:
+    app: productapp
+spec:
+  containers:
+  - name: productapp
+    image: rgupta00/productapp:1.1
+    ports:
+    - containerPort: 8090
+
+   
+    kubectl create -f 00-pod.yaml
+  
+     kubectl get pod
+    
+	 kubectl describe pod
+     give valuable informatation to debug pod
+	 
+	 while (1) {kubectl get all;sleep 5;cls}
+	 
+
+     
+	kubectl get pod/productapp-pod
+	kubectl get pod --show-labels
+
+     kubectl delete -f 01-simple-pod.yaml --dry-run=client
+
+ 
+Useful Debug Commands
+----------------
+kubectl get pods
+kubectl get pods -o wide
+
+Port forwarding
+-----------------
+	  
+ create a tunnel from our machine to Pod
+ -------------------------------------------
+ port forwording: trick to check whether ur container is running successfully or not
+ --------------
+ kubectl port-forward pod/productapp-pod 8090:8090
+ 
+Forwarding from 127.0.0.1:8090 -> 8090
+Forwarding from [::1]:8090 -> 8090
+
+
+
+Replicaset
+----------
+00-rs.yaml
+-----------
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: productapp-rs
+spec:
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: productapp
+
+  template:
+    metadata:
+      labels:
+        app: productapp
+
+    spec:
+      containers:
+      - name: productapp
+        image: rgupta00/productapp:1.1
+
+        ports:
+        - containerPort: 8090
+
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+
+        env:
+        - name: JAVA_TOOL_OPTIONS
+          value: "-XX:MaxRAMPercentage=60 -XX:InitialRAMPercentage=50 -XX:+UseG1GC"
+
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8090
+          initialDelaySeconds: 10
+          periodSeconds: 10
+
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8090
+          initialDelaySeconds: 30
+          periodSeconds: 15
+		
+		
+
+kubectl create -f 00-rs.yaml
+kubectl get rs
+kubectl get all
+kubectl get pod --show-labels
+
+kubectl delete pod my-rs-j9k6l
+new pod is create as we have mentioned desire count =3
+
+kubectl delete rs productapp-rs
+will delete replicaset
+
+
+
+
+What happen if label is not matching pod label is not matching with Replicaset
+---------------------------------------------------------------------------------
+01-mismatch.yaml
+-----------------
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: productapp-rs
+spec:
+  replicas: 3
+#selector.matchLabels == template.metadata.labels
+  selector:
+    matchLabels:
+      app: productapp-demo
+
+  template:
+    metadata:
+      labels:
+        app: productapp
+    spec:
+      containers:
+      - name: productapp
+        image: rgupta00/productapp:1.1
+
+        ports:
+        - containerPort: 8090
+
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+
+        env:
+        - name: JAVA_TOOL_OPTIONS
+          value: "-XX:MaxRAMPercentage=60 -XX:InitialRAMPercentage=50 -XX:+UseG1GC"
+
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8090
+          initialDelaySeconds: 10
+          periodSeconds: 10
+
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8090
+          initialDelaySeconds: 30
+          periodSeconds: 15
+
+
+kubectl apply -f 01-mismatch.yaml
+
+The ReplicaSet "productapp-rs" is invalid: spec.template.metadata.labels: 
+Invalid value: map[string]string{"app":"productapp"}: `selector` does not match template `labels`
+
+Note: You can have multiple labels but one must match
+
+
+
+Deployment
+---------
+Annotations in kubernetes:
+---------------------------
+have special meaning for k8s
+it is the way to pass some additional informationation using anntations
+
+  annotations:
+    kubernetes.io/change-cause: "deploying v3"
+	
+way to tell kubernete to show change cause when showing rollout history
+kubectl rollout history deploy
+
+
+Deployment example 1:
+-------------------------
+00-dep.yaml 
+-----------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: productapp-deploy
+  annotations:
+    kubernetes.io/change-cause: "deploy productapp v1.1"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: productapp
+  template:
+    metadata:
+      labels:
+        app: productapp
+    spec:
+      containers:
+      - name: productapp
+        image: rgupta00/productapp:1.1
+
+        ports:
+        - containerPort: 8090
+
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8090
+          initialDelaySeconds: 10
+          periodSeconds: 10
+
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8090
+          initialDelaySeconds: 30
+          periodSeconds: 15
+        
+  
+kubectl apply -f 00-dep.yaml 
+
+kubectl get all
+
+exec inside pod
+kubectl exec -it pod/productapp-deploy-755fc86577-52t6x bash
+
+kubectl get deployment
+
+describe deployment:
+kubectl describe deploy
+
+getting logs of specific container that is inside a pod:
+kubectl logs deploy/productapp-deploy		will show log of any one container that is running inside a pod
+kubectl logs pod/productapp-deploy-5c5b7bc6d7-bvwpc
+
+
+port forwarding:
+kubectl port-forward deploy/productapp-deploy 8090:8090
+
+
+kubectl describe pod
+give valuable informatation to debug pod
+	 
+
+
+
+Kubernetes only supports two strategies in a Deployment:
+------------------------------------------------------
+	RollingUpdate
+	Recreate
+
+	Everything else (Canary, Blue-Green, A/B testing) is implemented using Kubernetes objects like Services,
+	Ingress, or tools like Argo Rollouts / Istio.
+
+Rolling Update Process
+-----------------------------
+Kubernetes does not kill all pods at once. It replaces them gradually to avoid downtime.
+
+Default strategy:
+-----------------
+maxUnavailable: 25%
+maxSurge: 25%
+
+Why old pods disappeared
+-----------------------
+They were scaled down to zero by the Deployment controller after the new pods passed readiness checks.
+
+
+01-rollout.yaml
+---------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: productapp-deploy
+  annotations:
+    kubernetes.io/change-cause: "deploy productapp v1.1"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: productapp
+  template:
+    metadata:
+      labels:
+        app: productapp
+    spec:
+      containers:
+      - name: productapp
+        image: rgupta00/productapp:1.1
+        imagePullPolicy: Always
+
+        ports:
+        - containerPort: 8090
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "1Gi"
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8090
+          initialDelaySeconds: 10
+          periodSeconds: 10
+
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8090
+          initialDelaySeconds: 30
+          periodSeconds: 15
+		  
+		  	
+kubectl apply -f 01-rollout.yaml
+
+kubectl get all
+--------------
+exec inside pod
+kubectl exec -it pod/my-deploy-5c5b7bc6d7-bvwpc bash
+
+kubectl get deployment
+--------------------
+port forwarding
+kubectl port-forward deploy/productapp-deploy 8090:8090
+
+	  
+Rollout history
+---------------
+	Switching from 1.1 to 1.2 
+	
+	change value from 1.1 --> 1.2 and change annoation text 
+	
+	kubectl port-forward deploy/productapp-deploy 8090:8090
+	
+	
+kubectl rollout history deploy
+--------------------------------
+let assume there is bug in 1.2 and we want to migrate from 1.2 to 1.1
+
+command:
+------------
+kubectl rollout undo deploy/productapp-deploy
+
+if you want to see more details:
+kubectl rollout history deploy
+kubectl rollout history deploy --revision=2
+
+if we want to go to an specific version: (imp)
+kubectl rollout undo deploy/productapp-deploy --to-revision=2
+
+now if we do port forwarding we switch version to previous version
+
+port forwarding:
+kubectl port-forward deploy/productapp-deploy 9090:9090
+
+Min ready seconds:
+------------------
+	spring boot may take few second before it ready
+	we can put this inforation in deployment file
+	
+	health check and probes: will be proper way to do this
+	will be done latter
+
+
+	
+Note: default strategies : RollingUpdate
+-----------------------------------------
+Kubernetes automatically used RollingUpdate.
+
+Default Strategy Configuration
+------------------------
+If you don’t define anything, Kubernetes internally assumes this:
+
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 25%
+    maxSurge: 25%
+	
+What These Values Mean
+-------------------------
+maxSurge: 25%
+Kubernetes can create extra pods above the desired replicas during an update.
+	Your deployment:
+	replicas: 3
+	25% of 3 ≈ 1 pod
+
+	So Kubernetes can temporarily run:
+	3 desired + 1 extra = 4 pods
+	
+maxUnavailable: 25%
+	Maximum number of pods that can be unavailable during the update.
+	25% of 3 ≈ 1 pod
+	So at least 2 pods must remain available.
+	
+	
+
+RollingUpdate Strategy
+----------------------
+maxSurge
+--------
+maxSurge: 1
+--------------
+Meaning → Kubernetes can create 1 extra pod during rollout.
+
+ spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+  
+   Switching from v1 to v2 	
+   kubectl rollout history deploy
+   
+Example:
+replicas: 3
+temporary pods: 4
+
+
+maxSurge: "100%"
+----------------
+Meaning → Kubernetes can create up to 100% extra pods.
+
+ spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: "100%"
+	  
+	  
+Example:
+replicas: 3
+temporary pods: up to 6
+
+
+minReadySeconds
+---------------
+spec:
+  minReadySeconds: 10
+
+Pod must stay READY for 10 seconds before being considered available.
+
+
+maxUnavailable
+--------------
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+
+     here we are saying dont create extra pod it is ok if
+	 one pod is not available during rolling update
+	 
+Meaning → No extra pods created, but 1 pod can be unavailable during rollout.
+
+
+Default Behavior
+----------------
+maxSurge: 25%
+maxUnavailable: 25%
+
+
+	
+Recreate strategy
+-----------------
+Recreate strategy, Kubernetes does a very simple but brutal thing:
+	Kill all old pods first → then start the new pods.
+	No gradual replacement. No overlap. Just a full stop and restart.
+
+Why Recreate Exists
+	Even though it causes downtime, it’s useful when two versions cannot run together.
+	Database schema changes
+	Shared file locks / singleton services
+	Legacy stateful systems
+
+
+
+
+02-recreate.yaml
+-----------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: productapp-deploy
+  annotations:
+    kubernetes.io/change-cause: "deploy productapp v1.1"
+spec:
+  replicas: 3
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: productapp
+  template:
+    metadata:
+      labels:
+        app: productapp
+    spec:
+      containers:
+      - name: productapp
+        image: rgupta00/productapp:1.1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8090
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "1Gi"
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8090
+          initialDelaySeconds: 10
+          periodSeconds: 10
+
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8090
+          initialDelaySeconds: 30
+          periodSeconds: 15
+
+
+		
+strategy:
+    type: Recreate
+    
+Switching from v1 to v2 	
+kubectl rollout history deploy
+
+In  this strategy extra pod are not created
+already existing pod first deleted and then new one are created
+    
+
+     
+
+Kubernetes Service
+-------------------
+Pods are not stable network endpoints.
+	Problems with Pods:
+		Pod IP changes when Pod restarts
+		Pods are created and deleted frequently
+		Client cannot track Pod IPs
+		
+		So Kubernetes introduces Service.
+		A Service provides a stable network endpoint 
+		that forwards traffic to Pods.
+		
+		Think of it as a load balancer in front of Pods.
+		
+Types of Services
+------------------
+ClusterIP (default)
+	Used for internal communication inside cluster.
+	Not accessible from outside cluster.
+	Pods call service using DNS:
+		http://productapp-service:8090
+		
+		
+NodePort
+	Exposes application outside cluster.
+	Kubernetes opens a port on the node.
+		Example:
+		NodePort: 30001
+		Access:
+		http://localhost:30001
+		http://productapp-service:8090
+
+LoadBalancer
+	Used in cloud environments (AWS, Azure, GCP).
+	Creates an external load balancer
+
+
+NodePort
+============
+00-svc.yaml
+-----------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: productapp-deploy
+  annotations:
+    kubernetes.io/change-cause: "deploy productapp v1.1"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: productapp
+  template:
+    metadata:
+      labels:
+        app: productapp
+    spec:
+      containers:
+      - name: productapp
+        image: rgupta00/productapp:1.1
+        imagePullPolicy: Always
+
+        ports:
+        - containerPort: 8090
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "1Gi"
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8090
+          initialDelaySeconds: 10
+          periodSeconds: 10
+
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8090
+          initialDelaySeconds: 30
+          periodSeconds: 15
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: productapp-service
+
+spec:
+  type: NodePort
+  selector:
+    app: productapp
+
+  ports:
+  - port: 8091        # service port used inside the Kubernetes cluster
+                      # cluster के अंदर दूसरी services इस service को 8091 port पर access करेंगी
+    targetPort: 8090 # container port where the application runs
+    nodePort: 30001  # external port used to access service from outside cluster
+	
+	
+
+Let we decode what it means:
+-------------------------
+service/productapp-service NodePort 10.96.127.156 <none> 8091:30001/TCP
+
+First understand the two ports
+--------------------
+8091:30001
+This means:
+
+SERVICE PORT : NODE PORT
+------------------------
+So:
+Part	Meaning
+8091	Port used inside Kubernetes cluster
+30001	Port opened on every Kubernetes Node
+
+Complete path:
+---------------
+Browser
+   ↓
+NodeIP:30001     (NodePort)
+   ↓
+Service:8091     (Cluster service port)
+   ↓
+Pod:8091         (container port)
+
+
+
+Why EXTERNAL-IP is <none>
+----------------
+	Because NodePort does not create external load balancer.
+	You must use:
+	NodeIP:NodePort
+
+
+
+Explanation:
+------------
+	port        = service port
+	targetPort  = container port
+	nodePort    = external port
+
+
+Meaning of port: 8091
+--------------------
+port: 8091 means:
+	Inside the Kubernetes cluster, other services or 
+	pods will call this service using port 8091.
+
+Example
+
+If another service calls:
+
+http://productapp-service:8091
+
+Kubernetes will internally forward that request to the pod running the application.
+
+How the request flows
+---------------------
+Service port 8091
+       ↓
+Pod targetPort 8090
+       ↓
+Spring Boot application
+Simple mapping
+Service port (8091)
+       ↓
+Pod targetPort (8090)
+       ↓
+Application
+
+So other services talk to 8091, but the actual application inside the 
+pod is listening on 8090. Kubernetes automatically forwards the request.
+
+
+
+Explanation in Hindi 
+-------------------------
+port: 8091 का मतलब यह है:
+
+क्लस्टर के अंदर बाकी services या pods
+इस service को 8091 port पर call करेंगे।
+
+यानि अगर कोई दूसरी service call करे:
+
+http://productapp-service:8091
+
+तो Kubernetes internally उसे आगे भेजेगा:
+
+8091 (Service port)
+        ↓
+targetPort 8090 (Pod)
+        ↓
+Spring Boot application
+Simple Mapping
+Service port (8091)
+        ↓
+Pod targetPort (8090)
+        ↓
+Application
+
+
+
+
+
+K8s Service — ClusterIP (default)
+-----------------------------------
+Concept
+	A ClusterIP Service exposes an application only inside the Kubernetes cluster.
+	External users cannot access it directly.
+	Other pods communicate with the service using DNS name.
+	Think of it like an internal company extension number 
+	Employees inside the building can dial it, outsiders cannot.
+
+Architecture
+---------------
+Pod (client)
+     |
+     v
+Service DNS
+productapp-service:8091
+     |
+     v
+Service (ClusterIP)
+     |
+     v
+Pod replicas
+productapp:8090
+
+
+What happens internally
+-----------------------
+demo-client pod
+       |
+       v
+DNS resolves
+productapp-service
+       |
+       v
+ClusterIP
+       |
+       v
+Load balanced request
+       |
+       v
+productapp pods
+
+Key Idea
+-----------
+Pods are ephemeral/emporary
+
+	Their IP addresses change.
+	Service provides a stable virtual IP 
+
+	Pods communicate using:
+	http://service-name:port
+
+01-svc.yaml
+------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: productapp-deploy
+  annotations:
+    kubernetes.io/change-cause: "deploy productapp v1.1"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: productapp
+
+  template:
+    metadata:
+      labels:
+        app: productapp
+
+    spec:
+      containers:
+      - name: productapp
+        image: rgupta00/productapp:1.1
+        imagePullPolicy: Always
+
+        ports:
+        - containerPort: 8090
+
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "1Gi"
+
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8090
+          initialDelaySeconds: 10
+          periodSeconds: 10
+
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8090
+          initialDelaySeconds: 30
+          periodSeconds: 15
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: productapp-service
+
+spec:
+  type: ClusterIP
+
+  selector:
+    app: productapp
+
+  ports:
+  - port: 8091
+    targetPort: 8090
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-client
+
+spec:
+  containers:
+  - name: demo
+    image: rgupta00/util
+    args:
+    - "sleep"
+    - "3600"
+
+
+
+Test the service
+--------------------
+Enter demo pod:
+	kubectl exec -it demo-client -- sh
+	curl productapp-service:8091/hello-world
+
+
+
+
+
+Blue-Green Deployment 
+--------------------------
+Definition
+	Blue-Green deployment is a release strategy where two identical
+	environments run at the same time:
+
+BLUE  → current production version
+GREEN → new version
+
+Traffic is switched from Blue → Green after validation.
+
+Core Idea
+--------------
+In Kubernetes this is implemented using:
+
+	two Deployments
+	+
+	different labels
+	+
+	Service selector switch
+
+	Example labels:
+
+	app=productapp
+	version=blue
+	version=green
+
+Service routes traffic to pods matching the selector.
+-------------------------------------------
+Traffic Flow
+
+Initial State
+------------
+Client
+  |
+  v
+Service
+  |
+  v
+BLUE pods (v1)
+
+After Deploying Green
+-------------------
+Client
+  |
+  v
+Service
+  |
+  v
+BLUE pods (v1)
+
+GREEN pods (v2)  ← running but not receiving traffic
+
+After Traffic Switch
+---------------------
+Client
+  |
+  v
+Service
+  |
+  v
+GREEN pods (v2)
+
+Switch happens instantly by updating the Service selector.
+
+Kubernetes Implementation
+------------------------
+Blue Deployment
+	labels:
+	  app: productapp
+	  version: blue
+
+Green Deployment
+	labels:
+	  app: productapp
+	  version: green
+
+Service decides which version receives traffic.
+------------------------------------------------
+selector:
+  app: productapp
+  version: blue
+
+Switch to Green:
+version: green
+
+Advantages
+------------
+	Zero downtime
+	Users experience no interruption.
+	Instant rollback 
+	Switch Service back to Blue.
+	Safe production testing
+
+Limitation
+--------------
+	Both environments run simultaneously, 
+	so double resources are temporarily required.
+
+One-line Interview Answer
+--------------------------
+Blue-Green deployment in Kubernetes is achieved by:
+
+running two deployments (blue and green)
+and switching the Service selector label
+
+
+
+
+Deploy BLUE environment
+-----------------------
+kubectl apply -f .\01-blue-deploy.yaml
+kubectl apply -f .\02-service.yaml
+kubectl apply -f .\03-client.yaml
+
+Check:
+----------
+kubectl get pods
+kubectl get svc
+
+Test application
+---------------
+Enter test pod:
+kubectl exec -it demo-client -- sh
+
+Call service:
+curl productapp-service:8091/hello-world
+
+Deploy GREEN version
+------------------
+kubectl apply -f .\04-green-deploy.yaml
+
+
+Switch traffic to GREEN
+---------------------
+Edit service:
+-----------
+kubectl edit svc productapp-service
+
+Change:
+-----
+version: blue
+to
+version: green
+
+Quick way to verify
+-----------------
+kubectl get endpoints productapp-service
+kubectl get pods -l version=green
+
+kubectl exec -it demo-client -- sh
+curl productapp-service:8091/hello-world
+
+If the response is coming from green pods, the Blue→Green switch worked.
+
+now delete all :
+----------------
+kubectl delete -f .
+or
+kubectl delete -f 01-blue-deploy.yaml
+kubectl delete -f 02-service.yaml
+kubectl delete -f 03-demo-client.yaml
+kubectl delete -f 04-green-deploy.yaml
+
+
+
+
+k8s Namespace
+---------------------
+get all existing namespaces
+----------------------------
+kubectl get ns
+
+NAME                 STATUS   AGE
+default              Active   4h2m
+kube-node-lease      Active   4h2m
+kube-public          Active   4h2m
+kube-system          Active   4h2m
+local-path-storage   Active   4h2m
+
+
+namespace started with kube are reserved for kubernetes cluster
+kube-system  is super important
+ 
+ to get all pods from all namespaces: (imp)
+ kubectl get pod --all-namespaces
+ 
+ 
+Creating namespace
+----------------------
+kubectl create ns dev
+kubectl create ns qa
+
+
+get pod in dev ns
+-------------------
+kubectl get pod -n dev
+
+apply yaml config for dev ns
+-------------------------
+kubectl apply -f 01-ns-demo -n dev
+
+
+get all resouces in dev ns
+-------------------
+kubectl get all -n dev
+
+delete all resouces from dev ns
+-------------------------
+kubectl delete -f 01-ns-demo -n dev
+
+delete all resources from qa namespace
+----------------------------
+kubectl delete ns qa
+
+01-ns-demo.yaml
+-----------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: productapp-deploy
+  annotations:
+    kubernetes.io/change-cause: "deploy productapp v1.1"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: productapp
+  template:
+    metadata:
+      labels:
+        app: productapp
+    spec:
+      containers:
+      - name: productapp
+        image: rgupta00/productapp:1.1
+
+        ports:
+        - containerPort: 8090
+
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8090
+          initialDelaySeconds: 10
+          periodSeconds: 10
+
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8090
+          initialDelaySeconds: 30
+          periodSeconds: 15
+
+
+understanding kube-system 
+-----------------------------
+	kube-system is a special namespace in Kubernetes where it runs internal 
+	system components that help the cluster work properly.
+
+	Simple Explanation:
+		Think of kube-system as the engine room of your Kubernetes cluster. 
+		It holds the tools and services that keep Kubernetes itself running.
+
+Examples of what runs in kube-system:
+-----------------------------------
+	kube-dns / CoreDNS – Helps services find each other (DNS).
+	kube-proxy – Handles networking between pods.
+	etcd – Stores cluster data and configuration.
+	kube-controller-manager – Manages controllers (e.g., for replicas, nodes).
+	kube-scheduler – Decides which node runs which pod.
+	cloud-controller-manager (if using cloud provider).
+
+
+
+kubectl get pod -n kube-system 
+------------------------------
+	it gives lods of pod running under kube-system as pod
+	kindnet is CNI plugin to provide networking amongs different nodes
+	CoreDNS is a dns server translate logical name to ip address
+
+NAME                                                READY   STATUS    RESTARTS   AGE
+coredns-5d78c9869d-jhzcl                            1/1     Running   0          4h12m
+coredns-5d78c9869d-nq26f                            1/1     Running   0          4h12m
+etcd-dev-cluster-control-plane                      1/1     Running   0          4h12m
+kindnet-hbc26                                       1/1     Running   0          4h12m
+kindnet-n9wkw                                       1/1     Running   0          4h12m
+kindnet-p4vps                                       1/1     Running   0          4h12m
+kube-apiserver-dev-cluster-control-plane            1/1     Running   0          4h12m
+kube-controller-manager-dev-cluster-control-plane   1/1     Running   0          4h12m
+kube-proxy-6t68m                                    1/1     Running   0          4h12m
+kube-proxy-kql6j                                    1/1     Running   0          4h12m
+kube-proxy-xjnxm                                    1/1     Running   0          4h12m
+kube-scheduler-dev-cluster-control-plane            1/1     Running   0          4h12m
+
+
+
+
+
+
+k8s probes:
+----------------
+Kubernetes Probes 
+--------------------
+When a container starts, Kubernetes assumes it is healthy unless probes say otherwise.
+	Without probes:
+		Container started → Pod considered Ready
+		That can be dangerous because the application might still be starting.
+
+Probes allow Kubernetes to verify:
+-------------------------------------
+	Is the container alive?  → Liveness Probe
+	Is the container ready?  → Readiness Probe
+	Is the container fully started? → Startup Probe
+
+The logical execution order of Kubernetes probes is simple.
+------------------------------------------------------
+Startup → Readiness → Liveness
+
+Startup Probe: Has the application finished starting?
+
+Readiness Probe: Can this pod receive traffic?
+
+Liveness Probe: Is the application still alive
+				Is the application running correctly, or is it stuck/broken?
+
+				Kubernetes periodically asks the container this question.
+
+
+1️. Readiness Probe
+----------------
+Purpose:
+	etermine whether the pod can receive traffic.
+
+If readiness fails:
+	Service → stops sending traffic to that pod
+	Pod is still running.
+
+Typical use:
+	Application still loading
+	Database connection not ready
+	Cache warming
+
+Example:
+----------
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+    port: 8090
+  initialDelaySeconds: 10
+  periodSeconds: 10
+
+
+Liveness Probe
+-------------------
+Purpose:
+	Detect dead or stuck applications.
+
+If liveness fails:
+	Kubernetes restarts the container
+
+Typical cases:
+	Deadlock
+	Memory corruption
+	Application freeze
+
+Example:
+------------
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: 8090
+  initialDelaySeconds: 30
+  periodSeconds: 15
+  
+Meaning:
+----------
+	Check every 15s
+	Restart container if unhealthy
+
+
+Startup Probe 
+--------------------
+Purpose:
+	Used for slow-starting applications.
+
+Without startup probe:
+	Liveness probe may kill container too early
+	Startup probe disables liveness/readiness until startup completes.
+
+Example
+--------
+startupProbe:
+  tcpSocket:
+    port: 27017
+  periodSeconds: 1
+  failureThreshold: 5
+
+Meaning:
+
+Try for 5 seconds
+If Mongo not ready → restart
+
+
+
+Probe Types
+----------------
+Kubernetes supports three probe mechanisms.
+
+HTTP probe
+-------------
+httpGet:
+  path: /health
+  port: 8080
+
+Most common for Spring Boot.
+
+TCP probe
+--------------
+tcpSocket:
+  port: 27017
+
+Checks if port is open.
+
+Used for databases.
+
+Exec probe
+-------------
+exec:
+  command:
+  - cat
+  - /tmp/healthy
+
+Runs command inside container.
+
+Use when HTTP endpoint does not exist.
+
+
+
+
+
+
+
+
+01-prob.yaml
+--------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: productapp-deploy
+  annotations:
+    kubernetes.io/change-cause: "deploy productapp v1.1"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: productapp
+  template:
+    metadata:
+      labels:
+        app: productapp
+    spec:
+      containers:
+      - name: productapp
+        image: rgupta00/productapp:1.1
+
+        ports:
+        - containerPort: 8090
+
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8090
+          initialDelaySeconds: 10
+          periodSeconds: 10
+
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8090
+          initialDelaySeconds: 30
+          periodSeconds: 15
+
+
+port forwarding
+kubectl port-forward deploy/productapp-deploy 8090:8090
+
+
+02-startup-tcpsocket.yaml
+------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+  - name: mongo
+    image: mongo
+    startupProbe:
+      tcpSocket:
+        port: 27017
+      periodSeconds: 1
+      failureThreshold: 5
+
+
+
+03-startup-exec.yaml
+----------------------
+# prefer httpGet / tcpSocket
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    startupProbe:
+      exec:
+        command:
+        - "cat"
+        - "/usr/share/nginx/html/index.html"
+      periodSeconds: 1
+      failureThreshold: 3
+
+# create a separate healthcheck
+# /bin/healthcheck
+
+      # exec:
+      #   command:
+      #   - "/bin/healthcheck"
+	  
+
+
+
+
+
+
+Configmap and secret:
+----------------------
+Containers should not hardcode configuration inside the image.
+
+Example problems if config is inside the image:
+	Changing a config → rebuild Docker image
+	Same image cannot run in dev/qa/prod with different configs
+	Secrets like passwords become visible
+
+Kubernetes solves this using:
+	ConfigMap → non-sensitive configuration
+	Secret → sensitive configuration
+
+Explanation of ConfigMap and Secret in Kubernetes:
+
+ConfigMap vs Secret
+---------------
+ConfigMap
+	Stores application configuration.
+		Examples:
+		feature flags
+		API URLs
+		message strings
+		timeouts
+		
+Secret
+	Stores sensitive information.
+		Examples:
+		database username
+		database password
+		API tokens
+		private keys
+
+Secrets are stored base64 encoded inside Kubernetes.
+
+Example application:
+-----------------------
+how to encode username and password?
+docker run --rm alpine sh -c "echo -n dbuser | base64"
+docker run --rm alpine sh -c "echo -n dbuser | base64"
+
+
+kubectl apply -f .
+kubectl port-forward deploy/productapp-deploy 8090:8090
+http://localhost:8090/config
+
+Kubernetes uses base64?
+-------------------------
+Kubernetes requires secret values in base64 format because:
+	YAML/JSON must store data as text
+	Base64 safely represents binary or special characters
+
+Important:
+	In Kubernetes we typically store configuration in ConfigMaps
+	and credentials in Secrets. 
+
+	For higher security requirements, organizations integrate
+	external secret managers like HashiCorp Vault so that
+	applications fetch secrets dynamically instead of storing them
+	in Kubernetes.
+
+Instead of Spring Config Server many teams use:
+------------------------------------------------
+ConfigMap+ Secret + External config system (HashiCorp Vault)
+
+
+PV and PVC:
+------------
+If a database runs inside a Pod:
+pod deleted → data lost
+
+This is unacceptable for:
+	databases
+	uploaded files
+	logs
+	stateful systems
+
+Kubernetes Solution: External Storage
+--------------------------------------
+Kubernetes stores data outside the Pod.
+
+Think like this:
+	Pod = compute
+	Volume = storage
+
+So if Pod dies:
+	storage remains safe
+When new Pod starts:
+	it reconnects to same storage
+	
+Two Important Objects
+----------------------
+Kubernetes introduces two objects.
+	PersistentVolume (PV)
+	PersistentVolumeClaim (PVC)
+
+PersistentVolume (PV)
+------------------------
+PV is actual storage in the cluster.
+	It could be:
+		local disk
+		NFS
+		AWS EBS
+		Azure Disk
+		Google Persistent Disk
+
+Example concept:
+	Hard disk = PersistentVolume
+
+PV usually created by cluster admin.
+	Example PV:
+	10GB storage
+	ReadWriteOnce
+	
+PersistentVolumeClaim (PVC)
+------------------------
+PVC is request for storage.
+	Think of PVC like:
+	"I need 2GB disk"
+
+Kubernetes finds a PV that matches the request.
+	Then binds them.
+
+Simple Real World Analogy
+----------------------
+Think of a parking lot.
+
+Parking Lot Space = PV
+Your parking ticket = PVC
+Your car = Pod
+
+Flow:
+Parking lot exists (PV)
+You request parking spot (PVC)
+Your car parks there (Pod)
+
+How It Works Together
+----------------------
+
+The full flow:
+
+	Admin creates PV
+		   ↓
+	Developer creates PVC
+		   ↓
+	Kubernetes binds PVC → PV
+		   ↓
+	Pod uses PVC
+		   ↓
+	Pod writes data to storage
+
+How It Works Together
+-----------------------
+The full flow:
+
+Admin creates PV
+       ↓
+Developer creates PVC
+       ↓
+Kubernetes binds PVC → PV
+       ↓
+Pod uses PVC
+       ↓
+Pod writes data to storage
+
+
+Full Mental Model
+---------------------
+
+Application Pod
+      │
+      │ mounts storage
+      ▼
+PersistentVolumeClaim (PVC)
+      │
+      │ bound to
+      ▼
+PersistentVolume (PV)
+      │
+      │ actual storage
+      ▼
+Physical Disk / Cloud Storage
+
+
+
+
+
+Ingress:
+---------
+What is Ingress?
+	Ingress is a Kubernetes resource that exposes your services to the internet 
+	using a single IP or domain, often with path-based or domain-based routing.
+
+It works with an Ingress Controller like NGINX to route HTTP/HTTPS traffic.
+
+Step 1:
+
+Nginx Ingress Controller:
+--------------------------
+The NGINX Ingress Controller is a Kubernetes component that uses 
+NGINX act as a reverse proxy (with the help of Ingress controller) to manage external 
+access to services in your cluster — typically over HTTP and HTTPS.
+
+In Simple Terms:
+---------------
+	Think of it like a smart gatekeeper:
+	You have many services in your Kubernetes cluster.
+
+You want users to access them via clean URLs like:
+	yourapp.com/api
+	yourapp.com/login
+
+Instead of exposing each service separately, 
+you put one NGINX Ingress Controller in front, and it decides which service gets which request.
+
+
+Architecture Overview:
+
+User ──> Ingress Controller (NGINX) ──> Service A
+                        └────────────> Service B
+						
+						
+Lab step by step:
+---------------------------
+delete old cluster to create new one:
+-----------------------------------------
+ kind delete cluster --name dev-cluster
+
+create new cluster:
+------------------
+ kind create cluster --config .\01-cluster.yaml
+ 
+  docker ps
+  
+Applying below resource:
+-------------------------
+# kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+
+
+
+Example 1: Simple routes:
+-------------------------
+
+ Example1:02-simple-ingress
+ -------------------
+  kubectl apply -f .
+  
+  kubectl get ing
+  curl localhost
+ 
+
+
+
+Persistent Volume (PV) and Persistent Volume Claim (PVC) in Kubernetes
+------------------------------------------------------------------
+
+What’s the Problem?
+	When a container restarts in Kubernetes, 
+	any files saved inside it are lost — like saving notes on a whiteboard
+	that gets erased when the power goes out.
+
+But you sometimes want permanent storage:
+-------------------------------------
+	Databases (MySQL, MongoDB)
+	Uploaded files
+	Logs
+
+Kubernetes Solution: PV + PVC
+--------------------------------
+
+1. Persistent Volume (PV) = A physical storage space
+
+	Think of it like a hard disk that lives outside the container.
+	Can be local disk, NFS, AWS EBS, GCP Persistent Disk, etc.
+	Created by admin or dynamically
+
+2. Persistent Volume Claim (PVC) = A request for storage
+
+	Like saying: “I need a 5GB disk that’s read-write.”
+	Created by the developer or app
+	Automatically gets matched with a suitable PV
+
+Analogy:
+-------------
+Real Life												Kubernetes
+Parking Lot (empty space)								PV (Persistent Volume)
+You rent a spot											PVC (you claim it)
+Your car (app) parks there								Pod uses the volume
+
+How It Works Together
+-----------------------
+	Admin or cloud provider creates a PV
+	Your app creates a PVC
+	Kubernetes matches PVC to PV
+	PVC is mounted to your Pod, and you get permanent storage
+
+
+
+1-configMap.yml
+--------------
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: mysql-config
+  labels:
+    app: todo
+data:
+  MYSQL_DB: "todo-db"
+  
+2-secrets.yml
+-------------
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-secret
+type: Opaque
+data:
+  password: cm9vdA==
+  
+
+3-pv.yml
+------
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-pv-volume
+  labels:
+    type: mysql 
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/home/ubuntu/projects/mysql/volume"
+	
+	
+4-pvc.yml
+---------
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+
+
+5-deployment.yml
+--------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: password
+        - name: MYSQL_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: mysql-config
+              key: MYSQL_DB
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-pv-claim
+
+
+
+
+
+
+
+Resource Management & Auto Scaling
+-----------------------------------
+how we can get cpu memory usages of pods?
+
+Resource Management
+-------------------
+	Kubernetes allows you to control how much CPU and memory each pod can use:
+
+	Requests – Minimum guaranteed resources.
+	→ e.g., cpu: 100m, memory: 128Mi
+
+	Limits – Maximum resources a pod can use.
+	→ Prevents a pod from consuming too much.
+
+	Helps with fair sharing, performance, and scheduling across the cluster.
+
+Auto Scaling in K8s
+--------------------
+	Kubernetes can automatically adjust the number 
+	of pods or resources based on load.
+
+	Horizontal Pod Autoscaler (HPA)
+		Scales pods in/out based on CPU usage or custom metrics.
+		e.g., increase replicas when CPU > 80%
+
+	Vertical Pod Autoscaler (VPA)
+		Automatically adjusts CPU/memory requests/limits for a pod.
+
+	Cluster Autoscaler
+		Adds/removes nodes in the cluster based on pod demands
+		(in cloud environments like AWS, GCP, Azure).
+
+How It All Works Together:
+-------------------------
+	Requests/limits help schedule pods efficiently.
+	HPA/VPA adjust pods/resources based on real-time usage.
+	Cluster Autoscaler ensures enough infrastructure is available.
+
+
+
+Step 1: install materix service:
+-----------------------
+kubectl apply -f .\metrics-server.yaml
+
+check if matrix server is install and ready:
+----------------------------------------------
+kubectl get pod -n kube-system
+
+Step 2: Deploy Spring Boot Application
+----------------------------------------
+kubectl apply -f .\dep.yaml
+
+check pod is running:
+kubectl get pods
+kubectl get all
+
+step 3:Verify Metrics Server
+--------------------------
+kubectl top nodes
+
+step 4: Apply HPA
+-------------------
+kubectl apply -f .\hpa.yaml
+
+and verify hpa:
+---------------
+kubectl get hpa
+
+Verify Current Pods
+---------------------
+kubectl get pods
+
+step 5: Generate CPU Load
+---------------------
+Run load generator pod
+---------------------
+kubectl run -i --tty load-generator --rm --image=busybox -- sh
+
+Inside container run
+------------------------
+while true; do wget -q -O- http://productapp:8090/cpu; done
+
+This will continuously hit the CPU endpoint.
+
+
+step 6: Watch Autoscaling
+-------------------------
+kubectl get hpa -w
+
+	Expected progression
+	----------------------
+	TARGETS   REPLICAS
+	------------------
+	20%/50%   1
+	65%/50%   2
+	75%/50%   3
+	85%/50%   4
+	90%/50%   5
+
+Pods increase automatically.
+
+step 7: Verify Pods
+----------------
+
+kubectl get pods
+
+Expected
+----------
+5 pods running
+
+
+Verify CPU Distribution
+------------------------
+kubectl top pods
+
+Example
+----------
+productapp-deploy-xxxx   250m
+productapp-deploy-yyyy   220m
+productapp-deploy-zzzz   230m
+
+Load distributed across pods.
+
+
+step 8: Stop Load Generator
+----------------------------
+
+Exit busybox container
+exit
+After 2–5 minutes, check again
+kubectl get hpa -w
+
+Expected
+-------
+REPLICAS → gradually decrease
+
+Finally
+1 pod remains
+
+
+Final Demo Flow
+-------------
+Start
+1 pod
+
+Generate CPU load
+HPA detects >50%
+
+Pods scale
+1 → 2 → 3 → 4 → 5
+
+Load stops
+CPU drops
+
+Pods scale down
+5 → 1
+
+
+
+
+
+
+Spring boot k8s graphana promothesis integration:
+------------------------------------------
+
+
+0. Clean Environment (optional but good practice)
+-----------------------------------------------
+kubectl delete all --all
+kubectl get all
+
+
+2. Apply deployment + service YAML
+----------------------------------
+kubectl apply -f dep.yaml
+
+kubectl get pods
+kubectl get svc
+
+Port-forward:
+kubectl port-forward service/productapp 8090:8090
+
+Open browser:
+http://localhost:8090/actuator/prometheus
+
+Expected:
+You should see lots of metrics text, for example:
+jvm_memory_used_bytes
+http_server_requests_seconds
+
+This proves Spring Boot metrics are exposed.
+Stop port-forward (Ctrl+C).
+
+ Install Prometheus + Grafana
+-----------------------------------
+Add Helm repo:
+
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+Install monitoring stack:
+helm install monitoring prometheus-community/kube-prometheus-stack
+
+Expected:
+
+NAME: monitoring
+STATUS: deployed
+
+6 Wait for Monitoring Pods
+---------------------------
+Check pods:
+
+kubectl get pods
+
+Expected pods:
+
+monitoring-grafana-xxxxx
+monitoring-prometheus-xxxxx
+monitoring-kube-state-metrics
+
+All should be Running.
+
+7 Get Grafana Password (Windows command)
+-----------------------------------
+Run:
+
+kubectl get secret monitoring-grafana -o jsonpath="{.data.admin-password}" | % { [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($_)) }
+
+Expected output:
+
+Abc123xyz
+
+That is the Grafana password.
+
+8 Access Grafana
+------------------
+Run:
+
+kubectl port-forward deployment/monitoring-grafana 3000:3000
+
+Open browser:
+
+http://localhost:3000
+
+Login:
+
+username: admin
+password: <password from step 7>
+9 Create ServiceMonitor
+
+Create file:
+
+productapp-monitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: productapp-monitor
+  labels:
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: productapp
+  endpoints:
+  - port: http
+    path: /actuator/prometheus
+    interval: 15s
+
+Apply it:
+
+kubectl apply -f productapp-monitor.yaml
+
+Expected:
+
+servicemonitor.monitoring.coreos.com/productapp-monitor created
+10 Verify Prometheus Discovery
+
+Port-forward Prometheus:
+
+kubectl port-forward svc/monitoring-kube-prometheus-prometheus 9090
+
+Open:
+
+http://localhost:9090
+
+Go to:
+
+Status → Targets
+
+Expected:
+
+productapp-monitor   UP
+11 Test Prometheus Query
+
+In Prometheus UI run:
+
+jvm_memory_used_bytes
+
+Expected:
+
+graph with JVM metrics
+
+If data appears → scraping works.
+
+12 Import Grafana Dashboard
+
+In Grafana:
+
+Dashboards → Import
+
+Use dashboard ID:
+
+4701
+
+This is Micrometer JVM dashboard.
+
+Expected graphs:
+
+JVM Heap Memory
+HTTP Requests
+CPU Usage
+Threads
+GC Activity
+Final Architecture
+Spring Boot App
+      │
+      ▼
+Service
+      │
+      ▼
+ServiceMonitor
+      │
+      ▼
+Prometheus
+      │
+      ▼
+Grafana Dashboard
+What You Achieved
+
+You now have:
+
+Spring Boot metrics
+Prometheus scraping
+Grafana dashboards
+Kubernetes monitoring
+
+This is real production-style observability architecture.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ref:
+understanding deployment strategies
+https://medium.com/devops-dev/kubernetes-deployment-strategies-part-1-f4a7b959c5e5
+
+https://www.devopsschool.com/blog/category/kubernetes/
+
+https://www.harness.io/blog/kubernetes-services-explained
+
+
+
+
+
+kind download:
+--------------
+
+curl.exe -Lo kind-windows-amd64.exe https://kind.sigs.k8s.io/dl/v0.26.0/kind-windows-amd64
+Move-Item .\kind-windows-amd64.exe C:\setup_k8s\kind.exe
+
+
+
+download minikube:
+-------------------
+New-Item -Path 'c:\setup_k8s' -Name 'minikube' -ItemType Directory -Force
+Invoke-WebRequest -OutFile 'c:\setup_k8s\minikube.exe' -Uri 'https://github.com/kubernetes/minikube/releases/latest/download/minikube-windows-amd64.exe' -UseBasicParsing
+
+
+https://github.com/kubernetes/minikube/releases
+
+
+
+     

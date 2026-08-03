@@ -1,0 +1,1497 @@
+Why Observability?
+-------------------------------
+Before microservices, life was simple.
+
+Browser-----------Spring Boot Monolith-------------Database
+
+If something failed,check application.log---debug-----done
+
+Now imagine
+-----------
+	Browser
+		|
+	API Gateway
+		|
+	Order Service
+		|
+	-----------------------------
+	|            |              |
+	Payment   Inventory      Notification
+	Service     Service        Service
+	|
+	Database
+
+One request may travel through
+----------------------
+API Gateway
+Order Service
+Kafka
+Payment Service
+Inventory Service
+Email Service
+
+Now imagine customer says
+-----------------------------
+Payment failed after 7 seconds.
+	Which service?
+	Which database?
+	Which API?
+	Which machine?
+	Which log?
+	Impossible without observability.
+
+	Hence
+	Observability.
+
+
+
+Three Pillars of Observability
+-----------------------------------
+Everything revolves around three things.
+
+           Observability
+                 |
+-----------------------------------
+|                |                |
+Logs          Metrics          Traces
+
+
+1. Logs
+----------
+Developer writes=> log.info("Customer Created");
+
+Output
+2026-08-01 Customer Created
+
+Logs answer
+What happened?
+
+2. Metrics
+-------------
+Numbers over time.
+
+Example
+CPU = 80%
+Memory = 2 GB
+Requests/sec = 450
+Error Rate = 2%
+Metrics answer
+How healthy is the application?
+
+3. Traces
+-------------
+Request journey.
+
+Browser---Gateway-----Order-------Payment--------Inventory
+
+Trace answers
+Where did request spend time?
+
+
+
+Monitoring vs Observability
+------------------
+Monitoring
+CPU = 80%
+
+Observability
+------------
+Why CPU?
+Which request?
+Which service?
+Which SQL?
+Which API?
+Which user?
+
+Observability is much richer.
+
+
+Legacy Observability Stack (Before OpenTelemetry)
+--------------------------------------------
+Why was this stack created?
+
+As applications evolved from monoliths to microservices, developers needed answers to questions such as:
+
+Which service failed?
+-------------------------------
+Why is the application slow?
+Where is the error occurring?
+Which API call is taking the longest?
+
+Since there was no single observability standard, different open-source tools were used for different purposes.
+
+                 Legacy Observability Stack
+
+                    Application
+                         │
+ ┌─────────────┬──────────┴──────────┬──────────────┐
+ │             │                     │              │
+ ▼             ▼                     ▼              ▼
+Logs        Metrics             Traces        Dashboards
+ │             │                    │              │
+ELK       Prometheus            Zipkin       Grafana
+
+
+Problem: Every pillar used a different tool, protocol, storage engine, and configuration.
+
+ELK Stack (Logs)
+--------------
+ELK = Elasticsearch + Logstash + Kibana
+
+Application Logs
+       │
+       ▼
+Logstash
+(Collect & Parse)
+       │
+       ▼
+Elasticsearch
+(Store & Index)
+       │
+       ▼
+Kibana
+(Search & Visualize)
+Purpose
+
+Collect, store, search and visualize application logs.
+
+Components
+Elasticsearch
+---------------
+	Distributed search engine
+	Stores log documents
+	Provides fast indexing and searching
+	
+Logstash
+------------------
+	Log collection pipeline
+	Parses and transforms logs
+	Sends logs to Elasticsearch
+	
+Kibana
+-------------
+	Dashboard for Elasticsearch
+	Search logs
+	Build charts
+	Error investigation
+
+Advantages
+-------------
+	Powerful searching
+	Rich dashboards
+	Full text indexing
+
+Limitations
+----------------
+High memory usage
+Complex to operate
+Expensive at scale
+
+
+Prometheus (Metrics)
+--------------------
+Purpose: Store application metrics.
+
+Examples
+-----------
+CPU Usage
+Memory Usage
+JVM Heap
+HTTP Requests/sec
+Response Time
+Error Rate
+Pull Model
+
+Unlike logs,Prometheus pulls metrics from applications.
+
+Every 15 seconds
+
+Prometheus
+      │
+      │ GET /actuator/prometheus
+      ▼
+Spring Boot Application
+
+Response:
+http_requests_total=250
+cpu_usage=65%
+memory=512MB
+
+Spring Boot exposes metrics through
+
+/actuator/prometheus
+
+Advantages
+	Lightweight
+	Powerful query language (PromQL)
+	Excellent alerting
+
+Limitations
+	Metrics only
+	Cannot store traces
+	Not suitable for logs
+
+Grafana
+---------
+Grafana is NOT a database.
+It stores almost nothing.
+Its job is visualization.
+
+Think of Grafana as the Power BI of Observability.
+
+             Grafana
+
+       Dashboard Only
+
+            │
+ ┌──────────┼────────────┐
+ │          │            │
+ ▼          ▼            ▼
+Prometheus Elasticsearch Tempo
+       Loki     MySQL     PostgreSQL
+
+
+
+Grafana connects to multiple data sources and creates
+----------------------------------------------
+Dashboards
+Graphs
+Alerts
+Reports
+
+Zipkin
+----------
+Purpose: Distributed Tracing.
+
+Stores request execution paths.
+
+Example
+Customer Request
+
+Gateway------- Order Service----- Payment Service----------Inventory Service
+
+
+
+Zipkin records
+--------------
+Start Time
+End Time
+Duration
+Parent Span
+Child Span
+
+Advantages
+--------------
+	Simple
+	Easy setup
+	Good for tracing
+
+Limitations
+-------------
+	Only traces
+	Separate UI
+	Limited integration compared to Tempo
+
+
+Spring Cloud Sleuth
+------------------------
+Spring Cloud library for distributed tracing.
+
+Automatically generated: Trace ID and Span ID
+
+and propagated them between microservices.
+
+Spring Boot--------> Spring Cloud Sleuth--> HTTP Headers-------> Zipkin
+
+What did Sleuth do?
+
+Without Sleuth
+--------------
+Gateway--> Order Service-----> Payment Service------> Inventory
+
+Every service creates unrelated logs. Impossible to correlate.
+
+With Sleuth trace ID for example 5f3c81d5 Shared across all services.
+
+
+Gateway--> Order Service-----> Payment Service------> Inventory
+Same Trace ID.
+
+
+Now you can reconstruct the entire request.
+
+Legacy Stack Summary
+----------------------------------------------------------
+Observability Pillar	Tool					Purpose
+----------------------------------------------------------
+Logs					ELK						Store & Search Logs
+Metrics					Prometheus				Metrics Collection
+Dashboard				Grafana					Visualization
+Traces					Zipkin					Distributed Tracing
+Instrumentation			Spring Cloud Sleuth		Generate Trace ID & Span ID
+
+
+
+Problems with the Legacy Stack
+----------------------------------
+Every tool solved only one problem.
+
+Logs----  ----------> ELK
+Metrics-------------> Prometheus
+Tracing-------------> Zipkin
+Visualization-------> Grafana
+
+This created several operational challenges:
+--------------------------------------
+Tool Sprawl
+Five different products to install and maintain.
+Multiple Protocols
+Each tool had its own communication protocol.
+
+Prometheus → Pull
+Zipkin → HTTP
+ELK → Beats / Logstash
+Grafana → Connectors
+Complex Configuration
+
+Every product required
+-------------------------
+separate configuration
+separate upgrades
+separate backups
+separate scaling
+Hard Correlation
+
+To investigate one request you had to switch between
+------------------------------------
+Kibana
+Grafana
+Zipkin
+
+There was no unified request view.
+-----------------------------------
+High Operational Cost
+Infrastructure
+Storage
+Maintenance
+Monitoring
+All increased significantly.
+
+Key Takeaway
+------------
+The legacy stack worked well, but every observability pillar had its own tool,
+ protocol, storage engine, and configuration. 
+ As distributed systems became more complex, organizations needed a vendor-neutral standard 
+ that could unify logs, metrics, and traces while reducing operational complexity.
+
+
+
+Why OpenTelemetry?
+---------------------------
+The observability ecosystem had become fragmented.
+
+Logs        → ELK
+Metrics     → Prometheus
+Tracing     → Zipkin
+Instrumentation → Sleuth
+
+Every tool had its own API, protocol, and data format.
+
+The industry needed one common standard.
+
+JDBC Analogy
+-------------
+Before JDBC
+------------
+Oracle Driver
+MySQL Driver
+PostgreSQL Driver
+SQL Server Driver
+
+Every database required different code.
+
+JDBC introduced one standard API.
+
+		Application
+			│
+			JDBC
+			│
+	────────────────────────
+	|		|		|			|
+	Oracle MySQL PostgreSQL SQL Server
+
+Developers wrote against JDBC, not individual database vendors.
+
+OpenTelemetry Solves the Same Problem
+
+Before OpenTelemetry
+---------------------
+Application
+	↓
+Zipkin SDK
+Jaeger SDK
+Datadog SDK
+New Relic SDK
+
+Each backend required different instrumentation.
+
+
+After OpenTelemetry
+---------------------
+	Application
+		↓
+	OpenTelemetry SDK
+		↓
+		OTLP
+		↓
+	Any Backend One SDK. One protocol.
+	Many backends.
+
+What Does OpenTelemetry Standardize?
+-------------------------------------
+OpenTelemetry provides a common standard for collecting and exporting:
+
+Logs – Application and system events.
+Metrics – Numeric measurements such as CPU usage, memory, request count, and latency.
+Traces – End-to-end request flow across distributed services.
+
+Instead of each vendor using its own protocol, OpenTelemetry uses a single standard:
+
+OTLP (OpenTelemetry Protocol)
+---------------------------
+Why OTLP Matters
+
+OTLP is to observability what JDBC is to databases or HTTP is to web communication.
+
+	Application
+	    ↓
+	OpenTelemetry SDK
+    	↓
+	OTLP
+	  ↓
+	Collector
+	↓
+	Grafana
+	Jaeger
+	Datadog
+	New Relic
+	Splunk
+	Azure Monitor
+
+The application does not need to know which backend is receiving the telemetry.
+
+Benefits of OpenTelemetry
+--------------------------
+	Vendor-neutral
+	Open standard (CNCF)
+	Single instrumentation API
+	Unified telemetry format
+	Supports logs, metrics, and traces
+	Easy backend migration without changing application code
+
+Key Takeaway
+------------
+OpenTelemetry is not a monitoring tool or a storage system.
+ It is an open standard that defines how telemetry is collected, represented, and transmitted. 
+ The critical innovation is OTLP (OpenTelemetry Protocol),
+ which enables applications to send logs, metrics,
+ and traces to any compatible observability backend using a single, 
+ vendor-neutral protocol. This aligns with the README you shared, which emphasizes that the protocol
+ (OTLP) is what matters, not the specific library or backend.
+
+
+What is OTLP?
+---------------
+OTLP means OpenTelemetry Protocol
+
+Think
+HTTP
+TCP
+JDBC
+
+OTLP
+
+It is simply a communication protocol.
+-----------------------
+Instead of
+Prometheus format
+Zipkin format
+Jaeger format
+
+Everything becomes OTLP
+
+
+OpenTelemetry Architecture
+---------------------
+Application----> OpenTelemetry ---> OTLP---> Collector---> Backend
+
+Backend can be
+-------------
+Grafana
+Jaeger
+Datadog
+New Relic
+Dynatrace
+Azure Monitor
+AWS
+Google Cloud
+
+Exactly what we calls vendor-neutral.
+
+
+
+
+Collector
+------------------
+Collector is very important.
+
+Without collector
+-----------------
+Application---->Grafana
+
+With collector
+--------------
+Application------> Collector----> Grafana-> Datadog-----> Splunk
+
+Collector can
+------------
+filter
+batch
+enrich
+transform
+export
+
+Think
+--------
+Collector===API Gateway for telemetry
+
+
+
+
+LGTM Stack (Modern Observability Platform)
+--------------------------------------------
+What is LGTM?
+LGTM is Grafana Labs' modern observability platform that provides a complete solution for collecting, 
+storing, and visualizing Logs, Metrics, and Traces.
+
+LGTM
+---------
+L = Loki       → Logs
+G = Grafana    → Dashboards & Visualization
+T = Tempo      → Distributed Tracing
+M = Mimir      → Metrics Storage
+
+
+L = Loki (Logs)
+---------------
+Purpose
+Store, index and search application logs.
+
+Application Logs -> Loki -> Grafana
+
+Key Features
+--------------
+Log aggregation
+Lightweight architecture
+Label-based indexing (does not index entire log)
+Kubernetes friendly
+Cost-effective alternative to ELK
+
+Replaces
+ELK -> Loki
+
+
+G = Grafana (Visualization)
+-----------------------
+Purpose
+
+Grafana is the visualization layer of the LGTM stack.
+It does not generate telemetry.
+It visualizes telemetry collected by other systems.
+
+Grafana
+
+       |
+-----------------------------------------------------
+|            |              |             |
+Loki       Tempo          Mimir      Prometheus
+Logs      Traces         Metrics      Metrics
+
+Features
+--------
+Dashboards
+Graphs
+Alerting
+Service Maps
+Trace Explorer
+Log Explorer
+Metrics Explorer
+
+
+T = Tempo (Distributed Tracing)
+--------------------------------
+
+Purpose
+Store distributed traces generated by OpenTelemetry.
+
+Application -> OpenTelemetry -> Tempo -> Grafana
+
+Stores
+---------
+Trace ID
+Span ID
+Parent Span
+Child Span
+Request Timeline
+
+Replaces
+-----------
+Zipkin -> Tempo
+
+Advantages
+---------------
+Massive scalability
+Cloud-native
+Tight Grafana integration
+Lower storage cost
+
+
+M = Mimir (Metrics)
+------------------
+
+Purpose
+Long-term storage for Prometheus metrics.
+
+	Application
+      |
+	Prometheus
+      |
+	Mimir
+      |
+	Grafana
+	
+Features
+--------------
+Prometheus compatible
+Massive horizontal scalability
+Long-term metric storage
+Multi-tenant architecture
+
+Replaces
+Prometheus Local Storage -> Mimir
+
+Important: Prometheus is not replaced. Prometheus continues scraping metrics, 
+while Mimir provides scalable, long-term storage.
+
+How LGTM Works Together
+--------------------------
+	Spring Boot Application
+			  |
+			  |
+	   OpenTelemetry SDK
+			  |
+			OTLP
+			  |
+	 OpenTelemetry Collector
+			  |
+	----------------------------------------
+	|                |               |
+	Loki           Tempo          Mimir
+	Logs          Traces         Metrics
+		  \          |          /
+		   \         |         /
+			   Grafana
+		 (Unified Dashboard)
+		 
+	 
+Legacy Stack vs LGTM
+--------------------
+Observability	Legacy Stack	Modern LGTM Stack
+Logs			ELK				Loki
+Metrics			Prometheus		Prometheus + Mimir
+Traces			Zipkin			Tempo
+Dashboard		Grafana			Grafana
+
+
+Instrumentation	Spring Cloud Sleuth	OpenTelemetry
+------------------------------------------------
+Why Did the Industry Move to LGTM?
+
+Legacy Approach
+-------------
+Logs -> ELK
+Metrics -> Prometheus
+Traces -> Zipkin
+Dashboards -> Grafana
+
+Problems
+-----------
+Different storage systems
+Different protocols
+Different UIs
+Separate administration
+Higher infrastructure cost
+
+Modern LGTM Approach
+----------------
+Logs -> Loki
+Metrics -> Prometheus -> Mimir
+Traces -> Tempo
+Visualization -> Grafana
+
+Benefits
+-------------
+Unified Grafana ecosystem
+Better correlation of Logs, Metrics & Traces
+Lower storage cost
+Cloud-native architecture
+Better Kubernetes integration
+Easier maintenance
+OTLP native support
+Legacy vs Modern Architecture
+
+
+Before OpenTelemetry
+--------------------
+
+Application
+     |
+-----------------------------------------
+|              |               |
+Logs         Metrics         Traces
+ |              |               |
+ELK      Prometheus        Zipkin
+      \         |         /
+        \       |       /
+           Grafana
+		   
+		   
+Modern Architecture
+---------------------
+Application
+      |
+OpenTelemetry SDK
+      |
+     OTLP
+      |
+OpenTelemetry Collector
+      |
+-----------------------------------------
+|              |               |
+Loki         Mimir          Tempo
+      \        |        /
+       \       |       /
+          Grafana
+		  
+		  
+Key Takeaways
+--------------------
+Loki stores Logs.
+Grafana visualizes Logs, Metrics and Traces.
+Tempo stores Distributed Traces.
+Mimir provides long-term, scalable storage for Prometheus metrics.
+
+OpenTelemetry + OTLP unifies telemetry collection.
+--------------------------------
+LGTM offers an integrated, cloud-native observability platform with
+ lower operational complexity than the traditional multi-tool approach.
+
+Avoid saying "Mimir replaces Prometheus." 
+The more accurate statement is "Mimir complements Prometheus by providing scalable,
+ long-term storage while remaining Prometheus-compatible." 
+ This distinction is important when teaching observability architectures.
+
+
+
+Why not ELK?
+------------------
+ELK is excellent.
+
+But
+heavy
+Elasticsearch memory hungry
+complex scaling
+expensive
+
+Loki
+-------
+indexes labels only
+cheaper
+lighter
+integrates perfectly with Grafana
+
+
+Why Tempo?
+-----------
+Zipkin
+stores traces.
+
+Tempo
+stores traces.
+
+Difference
+--------------
+Tempo is designed for
+huge scale
+cheaper storage
+object storage
+Grafana integration
+
+
+
+Why Sleuth is Gone?
+---------------------
+Old
+--------
+Spring Boot ---------> Spring Cloud Sleuth-------> Zipkin
+
+New
+
+Spring Boot-------> Micrometer Tracing--------> OpenTelemetry-------> OTLP--------> Tempo
+
+Spring Cloud Sleuth is effectively replaced by Micrometer Tracing and OpenTelemetry in modern Spring Boot.
+
+
+
+Spring Boot 4
+----------------
+Spring Boot 4 introduces spring-boot-starter-opentelemetry
+
+Instead of adding many dependencies,you add one starter.
+
+It automatically configures
+-------------------------
+metrics
+traces
+OTLP exporters
+
+
+
+Request Flow
+-------------
+Browser -> Spring Boot -> Micrometer Tracing -> OpenTelemetry SDK -> OTLP -> OpenTelemetry Collector -> Tempo -> Grafana
+
+
+
+Trace ID
+-----------
+A Trace ID uniquely identifies an entire request as it travels across multiple services.
+
+Example
+GET /accounts/10
+Trace ID = 123ABC
+
+The same Trace ID is propagated to every service handling the request.
+
+Browser -> API Gateway -> Account Service -> Loan Service -> Card Service
+                  (Trace ID = 123ABC shared across all services)
+				  
+				  
+Key Points
+--------------
+One request = One Trace ID
+Shared across all microservices
+Used to search the complete request journey
+Enables end-to-end request correlation
+
+
+Span
+----------
+A Span represents a single unit of work performed during a request.
+
+Example
+Controller -> Service -> Repository -> Database -> REST API -> Kafka
+
+Each operation creates its own Span.
+
+Key Points
+-------------
+One operation = One Span
+Every Span has a unique Span ID
+Measures start time, end time, duration and metadata
+Parent-child relationships form the execution hierarchy
+
+
+Trace
+--------
+A Trace is the complete execution path of a request and consists of one or more related spans.
+
+Trace = Controller Span -> Service Span -> Database Span -> REST API Span -> Kafka Span
+
+Or
+Trace = Span 1 + Span 2 + Span 3 + Span 4 + Span 5
+
+Relationship
+-------------
+1 Request -> 1 Trace -> Multiple Spans
+
+
+Quick Comparison
+------------------------------------------------
+Trace								Span
+------------------------------------------------
+Complete request journey		Single operation within a request
+One Trace ID					One Span ID
+Shared across all services		Unique for every operation
+Contains multiple spans			Belongs to one trace
+
+Easy Analogy 
+-----------------
+Train Journey = Trace
+Each Railway Station = Span
+
+
+
+One customer request = One Trace
+Each method/API/DB call = One Span
+Trace = Collection of Spans
+
+
+
+Modern Observability Stack
+---------------------------------
+
+                Spring Boot 4
+                       |
+      --------------------------------
+      |              |               |
+    Logs          Metrics         Traces
+      |              |               |
+      -------------------------------
+                    |
+          OpenTelemetry SDK
+                    |
+                 OTLP Protocol
+                    |
+         OpenTelemetry Collector
+                    |
+      -----------------------------------
+      |              |                 |
+    Loki          Mimir            Tempo
+      |              |                 |
+      ---------------|-----------------
+                      |
+                  Grafana
+				  
+				  
+Spring Boot 4 + OpenTelemetry Configuration
+-------------------------------------------
+Step 0: Start LGTM Stack
+--------------------
+docker compose up -d
+
+Starts Grafana, Collector, Tempo, Loki and Prometheus.
+
+Spring Boot will export telemetry to these services.
+
+
+
+step 1: Create spring boot 4.x project 
+----------------------------------------------
+Let we first configure for Matrix and traces
+
+What following dependencies does?
+------------------------------------
+Enables automatic instrumentation.
+Spring Boot creates the OpenTelemetry SDK, Tracer, Meter and OTLP Exporters automatically.
+Metrics and Traces work without writing extra code.
+
+<version>4.0.1</version>
+
+       <dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webmvc</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-opentelemetry</artifactId>
+		</dependency>
+		
+		
+For Log 
+---------
+		<dependency>
+			<groupId>io.opentelemetry.instrumentation</groupId>
+			<artifactId>opentelemetry-logback-appender-1.0</artifactId>
+			<version>2.21.0-alpha</version>
+		</dependency>
+
+What it do?
+------------
+Adds OpenTelemetryAppender to Logback.
+Allows application logs to be exported via OTLP in addition to the console.
+
+
+
+step 1: create controller:
+---------------------------
+No tracing or metrics code is written.
+Spring Boot automatically creates Trace, Span, and HTTP Metrics for every request.
+log.info() generates application logs.
+
+
+@RestController
+public class HomeController {
+
+    private static final Logger log = LoggerFactory.getLogger(HomeController.class);
+
+    @GetMapping("/")
+    public String home() {
+        log.info("Home endpoint called");
+        return "Hello World!";
+    }
+
+    @GetMapping("/greet/{name}")
+    public String greet(@PathVariable String name) {
+        log.info("Greeting user: {}", name);
+        simulateWork();
+        return "Hello, " + name + "!";
+    }
+
+    @GetMapping("/slow")
+    public String slow() throws InterruptedException {
+        log.info("Starting slow operation");
+        Thread.sleep(500);
+        log.info("Slow operation completed");
+        return "Done!";
+    }
+
+    private void simulateWork() {
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+}
+
+
+
+step 2: customized application.yaml file
+---------------------------------------
+Configure OTLP Endpoints
+------------------------
+Explanation
+------------------
+Configures where telemetry is exported.
+Metrics → /v1/metrics
+Traces → /v1/traces
+Logs → /v1/logs
+
+
+spring:
+  application:
+    name: ot
+
+management:
+  otlp:
+    metrics:
+      export:
+        url: http://localhost:4318/v1/metrics
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: http://localhost:4318/v1/traces
+    logging:
+      export:
+        otlp:
+          endpoint: http://localhost:4318/v1/logs
+  tracing:
+    sampling:
+      probability: 1.0
+
+server:
+  shutdown: immediate
+logging:
+  level:
+    dev.danvega: INFO
+    org.springframework.boot.actuator.autoconfigure.opentelemetry: DEBUG
+    org.springframework.boot.docker.compose: DEBUG
+
+
+
+
+
+
+step 3: Create log file for custom logs
+-----------------------------------------
+Explanation
+-----------------
+Adds OpenTelemetry Appender.
+
+Every log.info() is written to both:
+----------------------------
+Console
+OpenTelemetry SDK
+
+log.info() -> Console
+           -> OpenTelemetryAppender
+		   
+		   
+		   
+logback-spring.xml
+-----------------
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="OTEL"/>
+    </root>
+</configuration>
+
+
+
+Step 4: Register OpenTelemetry SDK
+----------------------
+@Component
+class InstallOpenTelemetryAppender implements InitializingBean {
+
+    private final OpenTelemetry openTelemetry;
+
+    InstallOpenTelemetryAppender(OpenTelemetry openTelemetry) {
+        this.openTelemetry = openTelemetry;
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        OpenTelemetryAppender.install(this.openTelemetry);
+    }
+
+}
+
+
+Explanation
+------------
+Spring Boot creates the OpenTelemetry SDK Bean.
+Logback creates the OpenTelemetryAppender.
+install() connects both together.
+
+Spring Boot -> OpenTelemetry SDK
+                     |
+                     | install()
+                     |
+Logback -> OpenTelemetryAppender
+
+Without install()
+-------------------
+log.info() -> Console
+
+With install()
+----------------
+log.info() -> Console -> OpenTelemetry SDK -> OTLP -> Collector -> Loki -> Grafana
+
+
+Step 6: Verify in Grafana
+----------------------
+Open
+
+http://localhost:3000
+
+Generate requests
+-------------------
+GET /
+GET /greet/Raj
+GET /slow
+
+Explore
+------------
+Tempo → Traces
+Loki → Logs
+Prometheus → Metrics
+
+Complete Request Flow
+-----------------------
+Browser ->Spring Boot Controller ->OpenTelemetry SDK ->OTLP Exporter ->OpenTelemetry Collector
+   ->
+Tempo (Traces) +-> Loki (Logs)+-> Prometheus/Mimir (Metrics) -> Grafana
+
+What Happens Automatically?
+--------------------------
+Trace ID generated
+Span created
+HTTP metrics collected
+log.info() correlated with Trace ID
+Telemetry exported using OTLP
+Grafana visualizes Logs, Metrics & Traces
+
+
+
+
+
+
+
+
+Custom Observation (@Observed / ObservationRegistry
+-------------------------------------------------
+
+Why do we need custom observations?
+--------------------------------------
+Spring Boot automatically creates observations for:
+HTTP Requests
+JDBC Calls
+RestClient/WebClient Calls
+
+Example:
+Browser -> Controller
+
+This generates an HTTP span automatically.
+
+What's the problem?
+-------------------------
+Spring Boot does not know your business logic.
+
+For example:
+-----------------
+Payment Processing
+Fund Transfer
+Loan Approval
+Interest Calculation
+Salary Processing
+
+These are business operations, not framework operations.
+So no separate business span is created automatically.
+
+Solution
+-------------
+Create custom observations for important business methods.
+
+Two options are available:
+----------------------------
+Option 1 (Recommended)
+@Observed: Creates observations automatically using Spring AOP.
+
+Option 2
+ObservationRegistry: Creates observations programmatically using Java code.
+
+Without @Observed
+-----------------
+Browser -> Controller -> Service -> Repository
+One HTTP Span
+
+You only see the overall request.
+
+With @Observed
+-------------------
+Browser -> Controller -> Service(@Observed) -> Repository
+
+HTTP Span
+      |
+Business Span
+
+Now you can measure only the business operation.
+
+When should we use @Observed?
+
+Use it for important business operations such as:
+--------------------------------------------
+Payment Processing
+Fund Transfer
+Order Placement
+Report Generation
+Inventory Update
+Loan Approval
+
+Benefits
+-------------
+ Creates custom business spans
+ Measures execution time
+ Adds custom tags
+ Visible in Grafana Tempo
+ Uses Spring AOP (No boilerplate code)
+
+@Observed vs ObservationRegistry
+------------------------
+@Observed → Annotation-based, easiest approach.
+ObservationRegistry → Programmatic API for advanced/custom scenarios.
+
+
+Spring Boot automatically observes framework operations (HTTP, JDBC, RestClient), but 
+it cannot identify business operations.
+ 
+We use @Observed or ObservationRegistry to create custom observations for business logic, 
+enabling separate spans, metrics, and execution timing for important application workflows.
+
+
+
+Manual Instrumentation using @Observed & ObservationRegistry
+-----------------------------------------------------------
+Why do we need Custom Observation?
+
+Spring Boot automatically creates Observations for:
+--------------------------
+HTTP Requests
+JDBC Calls
+RestClient/WebClient Calls
+Scheduled Tasks
+
+Automatic Flow
+---------------------
+Browser --> Controller --> Service --> Repository --> Automatic HTTP Span
+Problem
+
+Spring Boot understands framework operations, but it does not understand business operations like:
+Payment Processing
+Fund Transfer
+Loan Approval
+Order Processing
+Interest Calculation
+
+These methods are not instrumented separately.
+
+Solution
+
+Create Business Observations using:
+-------------------------------------
+@Observed (Recommended)
+ObservationRegistry (Programmatic)
+Option 1 : @Observed (Recommended)
+
+
+What is @Observed?
+@Observed is a Micrometer annotation that automatically
+ creates a Business Observation around a method.
+
+@Service
+public class GreetingService {
+    @Observed(name = "greeting.service",contextualName = "Generate Greeting")
+    public String greet(String name) {
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        return "Hello " + name;
+    }
+}
+
+Controller
+-------------
+@RestController
+@RequiredArgsConstructor
+public class HomeController {
+
+    private final GreetingService service;
+
+    @GetMapping("/greet/{name}")
+    public String greet(@PathVariable String name) {
+        return service.greet(name);
+    }
+}
+
+Without @Observed
+----------------------
+Browser --> Controller --> Service --> Repository
+Only HTTP Request Span
+
+With @Observed
+-------------------
+Browser --> Controller --> GreetingService(@Observed) --> Repository
+
+HTTP Request Span --> Business Span (greeting.service)
+
+Tempo
+--------
+HTTP GET /greet/Raj --> greeting.service
+
+Internal Flow of @Observed
+@Observed --> Spring AOP Proxy --> ObservationAspect --> ObservationRegistry -->
+		OpenTelemetry SDK --> OTLP Exporter --> OpenTelemetry Collector --> Tempo --> Grafana
+
+Spring AOP automatically creates and closes the Observation.
+
+Option 2 : ObservationRegistry
+-------------------------------
+What is ObservationRegistry?
+
+ObservationRegistry is the central Micrometer component responsible for creating and managing Observations.
+
+@Service
+@RequiredArgsConstructor
+public class GreetingService {
+
+    private final ObservationRegistry registry;
+
+    public String greet(String name) {
+
+        return Observation
+                .createNotStarted("greeting.service", registry)
+                .observe(() -> {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+
+                    return "Hello " + name;
+                });
+
+    }
+}
+Internal Flow
+--------------------
+Business Method --> Observation --> ObservationRegistry --> OpenTelemetry SDK --> OTLP --> Collector --> Tempo --> Grafana
+
+
+
+Overall Architecture
+---------------------
+Browser --> Controller --> GreetingService --> @Observed --> Spring AOP Proxy -->
+	ObservationAspect --> ObservationRegistry --> OpenTelemetry SDK --> OTLP --> OpenTelemetry Collector --> Tempo --> Grafana
+	
+
+
+ObservationRegistry			@Observed
+--------------------------------------------
+Programmatic API			Annotation-based
+Manual Observation			Automatic Observation
+Flexible					Simple
+More Java code				One annotation
+Advanced scenarios			Most business methods
+
+
+Why do we need @Observed?
+Spring Boot automatically instruments framework components (HTTP, JDBC, RestClient), 
+but it cannot identify business operations. @Observed creates separate business spans with minimal code.
+
+What is ObservationRegistry?
+The central Micrometer component responsible for creating, managing,
+ and recording Observations that are converted into Metrics and Traces.
+
+How does @Observed work internally?
+--------------------------
+@Observed --> Spring AOP --> ObservationAspect --> ObservationRegistry --> 
+		OpenTelemetry SDK --> OTLP --> Collector --> Tempo
+		
+Easy Memory Trick
+-----------------
+@Observed --> Spring AOP --> ObservationRegistry --> OpenTelemetry SDK --> OTLP --> Collector --> Tempo --> Grafana
+
+ObservationRegistry = Engine
+@Observed = Automatic Driver
+OpenTelemetry SDK = Runtime Engine
+OTLP = Communication Protocol
+Collector = Traffic Router
+Tempo = Trace Database
+
+
+What we should observe in Grafana
+----------------------------
+A new child span appears.
+Parent–child relationship.
+Business method duration.
+Timeline.
+Start & End Time.
+Tags (Attributes).
+Nested spans.
+Slow business method identification.
+
+Spring Boot 3.x, we needed Actuator + Micrometer Tracing Bridge + OTLP Exporter + Micrometer OTLP Registry. 
+Spring Boot 4 simplifies this with a single spring-boot-starter-opentelemetry

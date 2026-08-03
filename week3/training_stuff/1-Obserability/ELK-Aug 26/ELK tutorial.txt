@@ -1,0 +1,445 @@
+ELK Stack Tutorial – Training Notes
+==================================
+
+1.What is the ELK Stack?
+-----------------------
+The ELK Stack is a powerful set of open-source tools for log management and analytics:
+
+E → Elasticsearch → Database/search engine for storing logs.
+
+L → Logstash → Pipeline tool that collects, parses, and forwards logs.
+
+K → Kibana → Visualization and dashboard tool for analyzing logs.
+
+Together, they help developers/ops monitor applications, debug issues, and analyze performance.
+
+
+2. ELK Stack Components
+---------------------------
+
+2.1 Elasticsearch
+---------------------
+Stores data as JSON documents.
+Provides REST API for indexing and searching.
+
+Example:
+curl -X GET "localhost:9200/"
+curl -X GET "localhost:9200/_cat/indices?v"
+
+Elasticsearch = Stores and searches JSON documents.
+REST API = The way you communicate with Elasticsearch (instead of SQL).
+GET localhost:9200/ = Checks whether Elasticsearch is running.
+GET localhost:9200/_cat/indices?v = Lists all indices (similar to listing tables in a database).
+
+2.2 Logstash
+--------------------
+Acts as a data pipeline.
+Collects logs from multiple sources (apps, files, syslog, beats).
+Applies filters (e.g., parsing JSON, adding metadata).
+Sends logs to Elasticsearch.
+
+2.3 Kibana
+----------------
+Web UI to explore data in Elasticsearch.
+Features: Discover (search logs), Visualize, Dashboard, Alerts.
+
+
+
+
+
+
+
+3.Setting Up ELK Stack with Docker Compose
+---------------------------------------
+Create docker-compose.yml
+----------------------------
+version: '3.8'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    networks:
+      - elk
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.15.0
+    container_name: logstash
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+    ports:
+      - "5044:5044"
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.15.0
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk
+
+networks:
+  elk:
+    driver: bridge
+
+
+3.2 Logstash Pipeline Config (logstash.conf)
+--------------------------------------------
+input {
+  tcp {
+    port => 5044
+    codec => json
+  }
+}
+
+filter {
+  mutate {
+    remove_field => ["@version", "host", "port"]
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["http://elasticsearch:9200"]
+    index => "springboot-logs"
+  }
+  stdout { codec => rubydebug }
+}
+
+
+
+Understand configuration file:
+----------------------------
+Spring Boot
+      │
+      ▼
+Send JSON logs to TCP Port 5044
+      │
+      ▼
+Logstash receives the logs
+      │
+      ▼
+Optionally clean or modify the logs
+      │
+      ▼
+Store logs in the "springboot-logs" index
+      │
+      ▼
+Elasticsearch
+      │
+      ├──► Print logs to Logstash Console (for debugging)
+      │
+      ▼
+Kibana (Search, Analyze & Visualize Logs)
+
+
+
+Logstash Config Explained
+--------------------------------
+A Logstash config always has 3 main blocks:
+
+input { } – where logs come from
+filter { } – how logs are processed/modified
+output { } – where logs go
+
+1. Input Section
+input {
+  tcp {
+    port => 5044
+    codec => json
+  }
+}
+
+
+Meaning:
+------------
+Logstash will listen on port 5044 for incoming logs.
+Protocol used = TCP.
+codec => json means it expects the log messages to already be in JSON format.
+Example log sent:
+
+{ "level": "INFO", "message": "Application started", "timestamp": "2025-09-03T15:00:00Z" }
+
+
+This matches with Spring Boot Logback when you use the Logstash JSON encoder.
+
+2. Filter Section
+--------------------
+filter {
+  mutate {
+    remove_field => ["@version", "host", "port"]
+  }
+}
+
+
+Meaning:
+Filters are optional but used to process/transform logs.
+Here we use the mutate filter.
+It removes unnecessary fields from each log entry (@version, host, port).
+Why? → To keep your logs clean in Elasticsearch (only relevant fields stored).
+
+Example:Before filter:
+--------------------
+{
+  "@version": "1",
+  "host": "localhost",
+  "port": 5044,
+  "level": "INFO",
+  "message": "Hello busycoder!"
+}
+
+
+After filter:
+--------------------
+{
+  "level": "INFO",
+  "message": "Hello busycoder!"
+}
+
+Output Section
+--------------------
+output {
+  elasticsearch {
+    hosts => ["http://elasticsearch:9200"]
+    index => "springboot-logs"
+  }
+  stdout { codec => rubydebug }
+}
+
+
+Meaning:
+Send logs to Elasticsearch
+
+Target: http://elasticsearch:9200
+Store in index: springboot-logs
+Now Kibana can read them from that index.
+
+Send logs to STDOUT (console)
+stdout { codec => rubydebug } → Prints logs in a human-readable format in Logstash’s console.
+
+Useful for debugging → you can confirm logs are being parsed correctly before they go into Elasticsearch.
+
+Flow of a Log
+------------
+Spring Boot app → sends JSON logs over TCP to localhost:5044.
+Logstash (input) → receives logs.
+Logstash (filter) → removes unwanted fields.
+Logstash (output) →
+Saves logs in Elasticsearch (springboot-logs index).
+Prints logs in Logstash console for debugging.
+
+Summary
+--------
+This config means:
+Take logs in JSON format from TCP port 5044.
+Clean them up (remove unwanted fields).
+Send them to Elasticsearch (springboot-logs) + also print to console.
+
+
+Run:
+---
+docker-compose up -d
+
+4.Spring Boot Integration
+------------------------------
+4.1 Add Dependencies (pom.xml)
+-----------------------------------
+<dependency>
+  <groupId>net.logstash.logback</groupId>
+  <artifactId>logstash-logback-encoder</artifactId>
+  <version>7.4</version>
+</dependency>
+
+4.2 Configure logback-spring.xml
+---------------------------------
+<configuration>
+    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>localhost:5044</destination>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="LOGSTASH" />
+    </root>
+</configuration>
+
+
+4.3 Example Logs
+------------------
+@Slf4j
+@SpringBootApplication
+public class HelloServiceApp {
+    public static void main(String[] args) {
+        SpringApplication.run(HelloServiceApp.class, args);
+        log.info("Application started successfully!");
+    }
+}
+
+
+Logs will now flow → Logstash → Elasticsearch → Kibana.
+
+
+8. Key Takeaways
+----------------------
+Elasticsearch = database for logs.
+Logstash = pipeline that ships logs.
+Kibana = UI for search/visualization.
+
+With Spring Boot + Logback, logs flow into ELK automatically.
+Useful for debugging, monitoring, and analytics in real-time.
+
+
+
+http://localhost:9200/
+http://localhost:5601/
+http://localhost:9200/_cat/indices?v
+
+1. http://localhost:9200/
+
+This is the Elasticsearch REST API endpoint.
+------------------------------------------
+It runs by default on port 9200.
+If you open this in browser, you’ll usually see some JSON showing the cluster name, node info, and version.
+Think of this as the backend database API where data (logs, metrics, documents, etc.) is stored.
+
+2. http://localhost:5601/
+
+This is Kibana’s web UI.
+-----------------------------
+Kibana connects to Elasticsearch on port 9200 behind the scenes.
+You use this URL to search, visualize, and analyze the logs/data stored in Elasticsearch.
+Basically, it’s the frontend dashboard for Elasticsearch.
+
+3. http://localhost:9200/_cat/indices?v
+
+This is a cat API call in Elasticsearch.
+-------------------------------------------
+_cat APIs are used for human-readable cluster info.
+indices?v lists all indices (databases/tables in Elasticsearch terms).
+The v means “verbose” → it will include headers in the table output
+
+
+
+
+how to see logs on kibana dashboard:
+--------------------------------
+Step 1: Go to “Stack Management”
+In Kibana (http://localhost:5601)
+
+Click the menu (≡) in the top-left corner.
+Go to Stack Management → Data Views.
+
+Step 2: Create a Data View (Index Pattern)
+Click “Create data view” (or Create index pattern in some versions).
+
+Enter:
+Name: springboot-logs
+Index pattern: springboot-logs*
+For Time field, select @timestamp.
+Click Save.
+
+Step 3: Open Discover
+Go back to Discover (from the left menu).
+Select your new data view springboot-logs*.
+
+step 4:
+Go to Discover
+In Kibana left sidebar, click Discover (under “Analytics”).
+If you don’t see it, use the search bar at the top and type Discover.
+
+Step 5: Select Your Data View
+At the top left of the Discover screen, there’s a dropdown (it currently shows system indices like .alerts-*).
+Change it to springboot-logs (the one you just created).
+
+Step 6: Adjust Time Range
+At the top-right, change the time filter to a wider range (e.g., Last 24 hours or Last 7 days).
+Click Refresh.
+
+
+C:\Users\busyc>docker ps
+CONTAINER ID   IMAGE                                                  COMMAND                  CREATED          STATUS          PORTS                              NAMES
+f9df654c12c9   docker.elastic.co/logstash/logstash:8.15.0             "/usr/local/bin/dock…"   36 minutes ago   Up 36 minutes   0.0.0.0:5044->5044/tcp, 9600/tcp   logstash
+7b7aacd0daf5   docker.elastic.co/kibana/kibana:8.15.0                 "/bin/tini -- /usr/l…"   36 minutes ago   Up 36 minutes   0.0.0.0:5601->5601/tcp             kibana
+7f1160379492   docker.elastic.co/elasticsearch/elasticsearch:8.15.0   "/bin/tini -- /usr/l…"   36 minutes ago   Up 36 minutes   0.0.0.0:9200->9200/tcp, 9300/tcp   elasticsearch
+
+
+
+ Watch the Logstash Console
+ ------------------------
+docker ps
+docker logs -f logstash
+
+call endpoint
+
+http://localhost:8080/hello
+
+
+You'll see something like
+
+{
+      "@timestamp" => 2026-08-03T08:15:22.145Z,
+          "level" => "INFO",
+        "message" => "Hello endpoint invoked",
+    "logger_name" => "com.example.ElkApplication",
+      "thread_name" => "http-nio-8080-exec-1"
+}
+
+Notice
+------
+@version
+host
+port
+
+are missing because your filter removed them.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+http://localhost:9200/_cat/indices?v
+
+health status index                                                              uuid                   pri rep docs.count docs.deleted store.size pri.store.size dataset.size
+green  open   .internal.alerts-transform.health.alerts-default-000001            moEMaLvkRF2JMERVv9Tenw   1   0          0            0       249b           249b         249b
+green  open   .internal.alerts-observability.logs.alerts-default-000001          k_u7kv1ZTBqi9U_Dd-nXrQ   1   0          0            0       249b           249b         249b
+green  open   .internal.alerts-observability.uptime.alerts-default-000001        sAKlu8z3QX-2ZtCiMIaHog   1   0          0            0       249b           249b         249b
+green  open   .internal.alerts-ml.anomaly-detection.alerts-default-000001        ozsPz4G9Scm7vvLMoRnFGw   1   0          0            0       249b           249b         249b
+green  open   .internal.alerts-observability.slo.alerts-default-000001           lC-fFCNRTr248DS45PLa9g   1   0          0            0       249b           249b         249b
+green  open   .internal.alerts-default.alerts-default-000001                     ftIXBLoSTDi6_spdTkvM1g   1   0          0            0       249b           249b         249b
+green  open   .internal.alerts-observability.apm.alerts-default-000001           rj_InwqZRayPjODB_i4y_A   1   0          0            0       249b           249b         249b
+green  open   .internal.alerts-observability.metrics.alerts-default-000001       -v1vNWupRm2BrALplhbWyg   1   0          0            0       249b           249b         249b
+green  open   .kibana-observability-ai-assistant-conversations-000001            2hmj1f4cRGWy-l32fm4X3Q   1   0          0            0       249b           249b         249b
+green  open   .internal.alerts-ml.anomaly-detection-health.alerts-default-000001 mxw6Yg9jRXWWQrolCiGYBw   1   0          0            0       249b           249b         249b
+green  open   .internal.alerts-observability.threshold.alerts-default-000001     EWW4P5p-T3aKscu3Ej6hsA   1   0          0            0       249b           249b         249b
+green  open   .internal.alerts-security.alerts-default-000001                    3D0gaiJCS-qBWrYhtZaMZw   1   0          0            0       249b           249b         249b
+green  open   .kibana-observability-ai-assistant-kb-000001                       C_AFnACCRr6mUbZpZGCorw   1   0          0            0       249b           249b         249b
+yellow open   springboot-logs                                                    VNkxeEvhQLy_7h9K5jyjaA   1   1         17            0     53.5kb         53.5kb       53.5kb
+green  open   .internal.alerts-stack.alerts-default-000001                       T9Im1ZOpTFiFDKLDUfJcrw   1   0          0            0       249b           249b         249b
+

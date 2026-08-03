@@ -11,11 +11,23 @@ spring:
   jpa:
     show-sql: true
 management:
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1.0
+
   endpoints:
     web:
       exposure:
-        include: refresh
+        include: "*"
+      base-path: /actuator
   endpoint:
+    prometheus:
+      enabled: true
+      metrics:
+        enabled: true
     health:
       enabled: true
   info:
@@ -33,3 +45,13 @@ eureka:
     service-url:
       defaultZone: http://localhost:8070/eureka/
 
+logging:
+  include-application-name: false
+  pattern:
+    correlation: "[${spring.application.name:},%X{traceId:-},%X{spanId:-}] "
+#logging:
+#  pattern:
+#    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+#logging:
+#  pattern:
+#    correlation: "[${spring.application.name:},%X{traceId:-},%X{spanId:-}] "
