@@ -17,6 +17,286 @@ agenda:
 * ingress
 
 
+What is cloud native application development?
+--------------------------------------------
+	an approach to develop mordern s/w (folling 12 factor/15 factor app)
+	HA, Scalable, responsive, fault tolerent 
+	speed ang agility
+
+what is typically included in cloud-native applications
+------------------------------------------------------
+Cloud-native applications are designed specifically 
+to run in cloud environments by leveraging cloud computing principles and infrastructure. 
+Here’s a breakdown of what is typically included in cloud-native applications:
+
+Core Components of Cloud-Native Applications
+------------------------------------------------------
+
+Microservices Architecture
+	Application is broken into small, independent services.
+	Each service is responsible for a single business capability 
+	and can be deployed independently.
+
+Containers
+	Services are packaged in containers (e.g., Docker) 
+	to ensure consistent environments across development, testing, and production.
+
+Container Orchestration
+	Tools like Kubernetes or OpenShift manage deployment, 
+	scaling, and resilience of containerized applications.
+
+DevOps and CI/CD Pipelines
+	Continuous Integration and Continuous Delivery/Deployment 
+	ensure faster and reliable release cycles.
+
+	Tools: Jenkins, GitHub Actions, GitLab CI, ArgoCD, Tekton.
+
+API-First Design
+	Services communicate over lightweight APIs (REST, gRPC, GraphQL).
+	Promotes loose coupling and easier integration.
+
+Infrastructure as Code (IaC)
+	Use of code to manage and provision infrastructure 
+	(e.g., Terraform, AWS CloudFormation).
+
+Cloud-Native Storage & Databases
+	Use of scalable and resilient storage solutions:
+
+	Block/Object storage (e.g., S3, Azure Blob)
+	NoSQL (e.g., MongoDB, DynamoDB)
+	Cloud-managed SQL (e.g., RDS, Cloud SQL)
+
+Service Mesh
+	Handles service-to-service communication, security, 
+	and observability (e.g., Istio, Linkerd).
+
+Auto-Scaling & Self-Healing
+	Applications automatically scale based on load.
+	Failed containers/services are automatically restarted.
+
+Observability and Monitoring
+	Centralized logging (ELK stack, Fluentd)
+	Metrics and monitoring (Prometheus, Grafana, Datadog)
+	Tracing (Jaeger, Zipkin)
+
+Cloud Provider Integration
+	Managed Services: Databases, message queues 
+	(e.g., SQS, Pub/Sub), storage, serverless functions.
+
+	Security & Identity: IAM, VPC, encryption, secrets management.
+
+	Serverless Computing (Optional Part): AWS Lambda,
+	 Google Cloud Functions, Azure Functions.
+
+Example Tech Stack
+---------------------
+		Layer							Tools/Tech Examples
+		---------------------------------------------------
+		Programming Lang				Java, Go, Node.js, Python
+		Frameworks						Spring Boot, Micronaut, Express.js
+		Containerization				Docker
+		Orchestration					Kubernetes
+		CI/CD							GitHub Actions, Jenkins, ArgoCD
+		Monitoring						Prometheus, Grafana, Loki, Fluentd
+		Messaging						Kafka, RabbitMQ, NATS
+		API Gateway						Kong, Istio, Ambassador, AWS API Gateway
+		Storage							S3, EBS, Azure Blob, Google Cloud Storage
+		Database						PostgreSQL, MongoDB, DynamoDB, Redis
+		
+https://github.com/mikeroyal/Cloud-Native-Guide?tab=readme-ov-file
+
+		
+Kubernetes (K8s) plays a key role in microservices by:
+--------------------------------------------------------
+	Orchestrating Containers 
+			Automates deployment, scaling, and management of containerized microservices.
+
+	Service Discovery & Load Balancing 
+			Enables microservices to find and communicate with each other reliably.
+
+	Auto-scaling
+			Automatically adjusts the number of service instances based on traffic/load.
+
+	Self-healing
+		Restarts failed containers and replaces unresponsive ones automatically.
+
+	Rolling Updates & Rollbacks
+		Safely deploys new versions of services without downtime.
+
+	Config & Secret Management
+		Manages environment configs and secrets securely.
+		
+		
+Docker pre req?
+-------------
+Docker arch, docker images, containers, networking, 
+port mapping, volumens, exec, docker file etc
+
+
+Docker vs k8s
+	Docker provide OS level abstraction
+	K8S provide infrastructure abs on cloud
+	
+What is docker?
+	open source plateform for packing the app + all dependencies + run time server
+	seperate app from underlying host
+	OS abstraction
+	
+What is kubernetes?
+	Kubernetes is an open-source container orchestration system for automating software deployment, 
+	scaling, and management.
+	
+	Originally designed by Google, the project is now maintained by the Cloud Native Computing Foundation.
+	 
+	The name Kubernetes originates from Ancient Greek, meaning 'helmsman' or 'pilot'
+	 
+	container orchestration engine
+	k8s manage life cycle of application
+	cluster of nodes 
+	admin : will manage the cluster
+	dev   : will use tools to develop cloud native app
+	
+kubernetes which is provided by cloud provide
+
+kubernetes setup:
+-----------------
+	local setup: docker + kubectl + minikube/kind
+	
+	cloud setup : 
+	
+	The four major Kubernetes providers are:
+	Google Kubernetes Engine (GKE): 
+		Closely follows the latest changes in the Kubernetes open-source project;
+
+	Azure Kubernetes Service (AKS): 
+		Known for rich integration points to other Azure services
+		
+	Amazon Elastic Kubernetes Service (Amazon EKS): 
+			One of the late players in the Kubernetes arena; a strong option due to AWS;
+
+	DigitalOcean Kubernetes (DOKS): The new Kubernetes service in the market.
+
+https://k21academy.com/docker-kubernetes/kubernetes-installation-options/
+
+	
+How to do local setup while learing k8s:
+---------------------------------------
+kind cluster config
+1. install kubectl (client utilty to interact with k8s infra)
+2. kind cluster
+
+
+
+kubernetes Arch:
+-----------------
+	Master: also called control plan (1-more master for HA)
+	Worker: 1 to many (5000) to make a cluster
+	
+components of k8s:
+		Master node / control plan
+		-----------------------------
+		API server: 
+			* Most important component, user intract with api server using imparative/decleartive commands
+			* The API server is a component of the Kubernetes control plane that exposes the Kubernetes API. 
+			* The API server is the front end for the Kubernetes control plane.
+		etcd:
+			* Consistent and highly-available key value store used as Kubernetes' 
+				backing store for all cluster data.
+		kube-scheduler:
+			* Workload scheduler
+			* Control plane component that watches for newly created Pods with no assigned node, 
+				and selects a node for them to run on.
+				
+		kube-controller-manager: 
+			* A process that continously monitor workload/nodes etc
+			* desired state vs current state kubernetes
+			
+		Worker Node:
+		-----------
+			kubelet:
+			* An agent that runs on each node in the cluster. 
+			It makes sure that containers are running in a Pod.
+			* It create and manage container inside a pod
+
+			* The kubelet takes a set of PodSpecs that are provided through various mechanisms 
+			and ensures that the containers described in those PodSpecs are running and healthy.
+			 The kubelet doesn't manage containers which were not created by Kubernetes.
+
+			kube-proxy:
+			*kube-proxy is a network proxy that runs on each node in your cluster, 
+			implementing part of the Kubernetes Service concept.
+
+			* kube-proxy maintains network rules on nodes
+			* handle conmmunication among the nodes within the cluster
+			
+			*These network rules allow network communication to your Pods from network sessions 
+			inside or outside of your cluster.
+
+			Container runtime:
+			*A fundamental component that empowers Kubernetes to run containers effectively. 
+			It is responsible for managing the execution and lifecycle of containers within the Kubernetes 				
+			environment.
+
+			Kubernetes supports container runtimes such as containerd, CRI-O,
+			 and any other implementation of the Kubernetes CRI (Container Runtime Interface).
+
+
+kubernetes working process:
+---------------------------
+1. API server expose API to interact with kubernetes (using Kubectl)
+
+2. Workload is the application that we want to run.
+	let assume we want to run 2 instances of nginx server
+	
+	developer write yaml file and send req to api server 
+			|
+	API server validate the request 
+			|
+	API server authenticate/authorize the request
+			|
+	API server store it into etcd db
+	etcd container all info about cluster
+			|
+	API server talk to the scheduler if he can run
+	2 intance of nginx
+			|
+	scheduler choose 2 worker node to run the workload and schedule it on worker node
+			|
+	controller manager responsible for continously monitoring
+	the state of cluster.let assume one pod dies then, 
+	controller manager find we need 2 instance and one is down
+			|
+	controller talk to API server
+			|
+	Scheduler pick another node to run the nginx instance
+	
+worker node how it works?
+
+	As JRE is required to run java app
+	in same way docker runtime is required to run container
+	docker of CRI is required on each node
+			|
+	let scheduler pick node1 and node2 to run 2 instance of nginx
+			|
+	API server inform kubelet (agent) (That is waiting for instruction of api server) to run 
+	intance of app1 and app2 then kubelet will create and manage containers
+	
+	
+tools for local development
+---------------------------
+kubectl : command line utlility to intract with API server
+	 command line tool to intract with kubernete master / API server
+	 
+Kind:	kind is used to create local cluster 
+	to setp a kubernetes cluster for development and testing
+	kind vs minikube
+
+verify installation:
+	kind version
+	kubectl version --output=yaml
+	
+Note: command remain same no matter what tool we are using :)
+
 How to do local setup while learing k8s:
 ---------------------------------------
 kind cluster config
@@ -26,7 +306,6 @@ kind cluster config
 -----------------------
 Setup kind local cluster
 ------------------------
-
 docker system prune -af
 docker network ls
 
@@ -72,8 +351,14 @@ step 2: create kind cluster
   cat ~/.kube/config
   will give information where the cluster, ip networking is running
   
+  
+  ~/.kube/config is the configuration file for kubectl. 
+  It contains the cluster's API Server address, authentication details, and the active context. 
+  kubectl reads this file before connecting to a Kubernetes cluster.
+  
+  
  Now kubectl able to talk to master check command
- 
+
  kubectl version --output=yaml
  -------------
   get all notes in the cluster
@@ -98,7 +383,7 @@ step 2: create kind cluster
   
   Now explore worker node:
  
- a07f40b83057
+   a07f40b83057
  
    docker exec -it a07f40b83057 bash
  
@@ -107,7 +392,9 @@ step 2: create kind cluster
   -------------
    	Pods
   -------------
- 
+  A Pod is the smallest deployable unit in Kubernetes that runs one or more containers 
+  sharing the same network and storage.
+  
 	Command K8s
 	------------
 	to create k8s cluster

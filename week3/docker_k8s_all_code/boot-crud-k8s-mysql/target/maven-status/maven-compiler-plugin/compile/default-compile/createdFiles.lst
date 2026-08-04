@@ -1,0 +1,5 @@
+com\busycoder\controller\ProductController.class
+com\busycoder\service\ProductService.class
+com\busycoder\entity\Product.class
+com\busycoder\InventoryServiceApplication.class
+com\busycoder\repository\ProductRepository.class

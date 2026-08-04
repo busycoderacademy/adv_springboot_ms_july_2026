@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: productapp-blue
+  annotations:
+    kubernetes.io/change-cause: "deploy productapp BLUE v1.1"
+spec:
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: productapp
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: productapp
+        version: blue
+    spec:
+      containers:
+      - name: productapp
+        image: rgupta00/productapp:1.1
+        imagePullPolicy: Always
+
+        ports:
+        - containerPort: 8090
+
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "1Gi"
+
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8090
+          initialDelaySeconds: 10
+          periodSeconds: 10
+
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8090
+          initialDelaySeconds: 30
+          periodSeconds: 15

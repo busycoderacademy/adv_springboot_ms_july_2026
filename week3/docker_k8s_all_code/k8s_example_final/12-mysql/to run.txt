@@ -1,0 +1,21 @@
+Step 1: create kind cluster if not there
+
+kind delete cluster --name dev-cluster
+kind create cluster --config 01-cl.yaml
+docker ps
+
+kubectl get secrets
+
+kubectl get pvc
+
+kubectl get pv
+
+Step 2: Run all configuration one by one
+
+Step 3: exec into the mysql pod
+kubectl exec -it pod/mysql-796d8f759b-xxjhb bash
+ mysql -u root -p
+
+
+Step 4: delete cluster
+kind delete cluster --name dev-cluster

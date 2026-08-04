@@ -1,0 +1,17 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: dev-cluster
+nodes:
+- role: control-plane
+  extraPortMappings:
+  - containerPort: 30288 #coupon-app
+    hostPort: 30288
+    protocol: TCP
+  - containerPort: 30287 #mysql
+    hostPort: 30287
+    protocol: TCP
+  - containerPort: 30289 #product service
+    hostPort: 30289
+    protocol: TCP
+- role: worker
+- role: worker

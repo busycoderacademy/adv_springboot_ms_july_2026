@@ -1,0 +1,35 @@
+server:
+  port: 8090
+spring:
+  profiles:
+    active:
+      - "qa"
+  application:
+    name: loans
+  jpa:
+    show-sql: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      enabled: true
+  info:
+    env:
+      enabled: true
+info:
+  message: "welcome to loan application default profile"
+  name: "raj default profile"
+#spring:
+#  application:
+#    name: bankapp
+#account:
+#  message: "welcome to productapp account manager"
+#  contactDetails:
+#    name: "raj"
+#    email: "rgupta.mtech@gmail.com"
+#  onCallSupport:
+#    - 54645464556
+#    - 75765777677

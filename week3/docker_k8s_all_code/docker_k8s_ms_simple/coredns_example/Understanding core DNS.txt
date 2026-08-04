@@ -1,0 +1,76 @@
+Understanding core DNS Kubernetes:
+=================================
+CoreDNS is a flexible, extensible DNS server that can serve as the Kubernetes cluster DNS.
+ When you launch an Amazon EKS cluster with at least one node,
+ two replicas of the CoreDNS image are deployed by default,
+ regardless of the number of nodes deployed in your cluster.
+
+CoreDNS is written in Go and is designed to be lightweight, fast, and efficient.
+It is also highly configurable, which means that it can be customized
+to meet the specific needs of different Kubernetes deployments.
+
+How does CoreDNS work with Kubernetes?
+    In a Kubernetes cluster, CoreDNS is deployed as a set of containers
+    that run on each node in the cluster.
+    When a pod is created in the cluster, it is assigned an IP address and a
+     hostname based on the Kubernetes service discovery mechanism.
+
+CoreDNS uses this information to create a set of DNS records
+that map the pod’s hostname to its IP address.
+
+ These records are stored in the CoreDNS server and are used to provide name resolution services
+  for other pods and services within the cluster.
+
+When a pod or service needs to communicate with another pod or service within the cluster,
+it sends a DNS query to the CoreDNS server, which returns the IP address of the destination pod or service.
+This allows the sending pod or service to establish a connection with the destination pod or service using its IP address.
+
+Why is CoreDNS important in Kubernetes?
+    CoreDNS is an important component of Kubernetes because it provides a reliable and scalable way
+    to perform DNS-based service discovery and name resolution within a Kubernetes cluster.
+     This is essential for enabling communication between pods and services in a complex and dynamic containerized environment.
+
+Without CoreDNS, pods and services within a Kubernetes cluster would need to rely on static IP addresses
+or other non-dynamic forms of addressing,
+which would be difficult to manage and scale as the cluster grows and changes over time.
+
+In addition, CoreDNS is highly configurable, which means that it can be customized to meet the specific
+ needs of different Kubernetes deployments. This allows Kubernetes administrators to optimize
+ the performance and reliability of their clusters by fine-tuning CoreDNS to meet the specific
+ requirements of their workloads and applications.
+
+Conclusion
+    CoreDNS is an essential component of Kubernetes that provides DNS-based service discovery and name resolution services
+     for pods, services, and other resources within a Kubernetes cluster.
+     By providing a reliable and scalable way to manage DNS-based addressing within a Kubernetes cluster,
+     CoreDNS makes it easier to deploy and manage containerized applications and services in a complex and dynamic environment.
+
+Here’s a simple example demonstrating service discovery using CoreDNS
+in Kubernetes with two Spring Boot applications:
+
+refer code sample attached
+
+Step 1: Create kind cluster
+
+ kind create cluster --config cls.yaml
+ 
+ to delete cluster:
+  kind delete cluster --name dev-cluster
+  
+Step 2: kubectl  
+	kubectl apply -f service-b.yaml
+	kubectl apply -f service-a.yaml  
+
+http://localhost:30287/api/invoke
+http://localhost:30288/api/hello
+
+
+
+Exploring core DNS
+----------------------
+ kubectl -n kube-system get pods
+ kubectl get all -n kube-system -o wide|grep core
+ kubectl -n kube-system describe service/kube-dns
+ 
+
+

@@ -1,0 +1,39 @@
+#spring.main.allow-bean-definition-overriding=true
+server:
+  port: 8085
+spring:
+  application:
+    name: resilance4jdemo
+  jpa:
+    show-sql: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    readinessstate:
+      enabled: true
+    livenessstate:
+      enabled: true
+    health:
+      probes:
+        enabled: true
+
+
+#Configure rate limiting for helloControllerLimiter
+#resilience4j:
+#  ratelimiter:
+#    instances:
+#      helloControllerLimiter:
+#        limitForPeriod: 2        # Max 2 requests allowed in one cycle (token bucket size)
+#        limitRefreshPeriod: 10s  # Every 10 seconds, tokens are refilled (cycle reset)
+#        timeoutDuration: 1s      # If no token available, wait up to 1 second before rejecting
+
+
+resilience4j:
+  bulkhead:
+    instances:
+      cardService:
+        maxConcurrentCalls: 3
+        maxWaitDuration: 0

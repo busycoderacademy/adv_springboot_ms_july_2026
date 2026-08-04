@@ -1,0 +1,25 @@
+version: "3.8"
+services:
+  productapp:
+    image: productapp:latest
+    container_name: productapp
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    networks:
+      - product-network
+
+  productapp-client:
+    image: productapp-client:latest
+    container_name: productapp-client
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    depends_on:
+      - productapp
+    networks:
+      - product-network
+
+networks:
+  product-network:
+    driver: bridge

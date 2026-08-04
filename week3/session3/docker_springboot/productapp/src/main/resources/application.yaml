@@ -1,0 +1,37 @@
+server:
+  port: 8090
+spring:
+  application:
+    name: productapp
+logging:
+  level:
+    org.springframework.web: DEBUG
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: "*"
+
+  endpoint:
+    prometheus:
+      enabled: true
+    metrics:
+      enabled: true
+    health:
+      probes:
+        enabled: true
+      show-details: always
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+
+product:
+  message: "Hello from application.yml"
+  featureEnabled: false
+
+database:
+  username: admin
+  password: admin123
