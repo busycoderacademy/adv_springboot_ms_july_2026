@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: productapp-config
+data:
+  PRODUCT_MESSAGE: "Hello from Kubernetes ConfigMap"
+  PRODUCT_FEATUREENABLED: "true"

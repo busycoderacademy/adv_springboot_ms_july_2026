@@ -24,9 +24,10 @@ public class ProductController {
     public String config() {
         return dbConfig.toString() + "  " + productConfig.toString();
     }
+
     @GetMapping(path = "hello-world")
     public String hello() {
-        return "hello V3 " + instanceInformationService.retrieveInstanceInfo();
+        return "hello V7 " + instanceInformationService.retrieveInstanceInfo();
     }
 
     @GetMapping("/cpu")

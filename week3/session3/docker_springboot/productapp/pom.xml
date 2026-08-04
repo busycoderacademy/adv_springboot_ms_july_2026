@@ -58,12 +58,13 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+            <!--Spring boot with Build pack step to follow-->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <image>
-                        <name>rgupta00/${project.artifactId}:1.3</name>
+                        <name>rgupta00/${project.artifactId}:1.7</name>
                     </image>
                     <excludes>
                         <exclude>
