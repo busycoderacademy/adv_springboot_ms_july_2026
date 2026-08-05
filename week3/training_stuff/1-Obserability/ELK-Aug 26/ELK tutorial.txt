@@ -6,9 +6,7 @@ ELK Stack Tutorial – Training Notes
 The ELK Stack is a powerful set of open-source tools for log management and analytics:
 
 E → Elasticsearch → Database/search engine for storing logs.
-
 L → Logstash → Pipeline tool that collects, parses, and forwards logs.
-
 K → Kibana → Visualization and dashboard tool for analyzing logs.
 
 Together, they help developers/ops monitor applications, debug issues, and analyze performance.
@@ -31,12 +29,14 @@ REST API = The way you communicate with Elasticsearch (instead of SQL).
 GET localhost:9200/ = Checks whether Elasticsearch is running.
 GET localhost:9200/_cat/indices?v = Lists all indices (similar to listing tables in a database).
 
+
 2.2 Logstash
 --------------------
 Acts as a data pipeline.
 Collects logs from multiple sources (apps, files, syslog, beats).
 Applies filters (e.g., parsing JSON, adding metadata).
 Sends logs to Elasticsearch.
+
 
 2.3 Kibana
 ----------------
@@ -350,6 +350,7 @@ Name: springboot-logs
 Index pattern: springboot-logs*
 For Time field, select @timestamp.
 Click Save.
+
 
 Step 3: Open Discover
 Go back to Discover (from the left menu).
