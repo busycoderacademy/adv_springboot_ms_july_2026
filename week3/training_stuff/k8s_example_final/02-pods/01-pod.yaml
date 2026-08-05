@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: productapp-pod
+  labels:
+    app: productapp
+spec:
+  containers:
+  - name: productapp
+    image: rgupta00/productapp:1.1
+
+    ports:
+      - containerPort: 8090
+    resources:
+      requests:
+        cpu: "250m"
+        memory: "256Mi"
+      limits:
+        cpu: "500m"
+        memory: "512Mi"
+    env:
+      - name: JAVA_TOOL_OPTIONS
+        value: "-XX:MaxRAMPercentage=60 -XX:InitialRAMPercentage=50 -XX:+UseG1GC"
+    readinessProbe:
+      httpGet:
+        path: /actuator/health/readiness
+        port: 8090
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 2
+      failureThreshold: 3
+
+    livenessProbe:
+      httpGet:
+        path: /actuator/health/liveness
+        port: 8090
+      initialDelaySeconds: 30
+      periodSeconds: 15
+      timeoutSeconds: 2
+      failureThreshold: 3
