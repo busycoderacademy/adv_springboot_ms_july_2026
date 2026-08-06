@@ -257,17 +257,21 @@ we have run some basics command
 
 Approach to create docker images :
 --------------------------------
-1. using docker file
+
+1. using docker file (Dockerfile)
+---------------------------------
 	we need to write a docker file with list of all instructions
 	which can be passed to the docker server to generate docker image using
 	given instructions
 	
 2. Buildpack
+--------------
 	Buildpack is the project initiated by heroku and pivotal and now hosted on CNCF
 	it is simplified containization ,as we dont need to write docker file 
 	https://buildpacks.io/
 	
 3. google gib
+----------------
 	jib is open source java tool maintained by google for building images of java application only
 	it is simplified containization ,as we dont need to write docker file 
 
@@ -420,9 +424,9 @@ docker run -p 8090:8080 rgupta00/productapp:v1
 
 
 Approach 2: google gib step to follow:
--------------------------
+--------------------------------------
 Jib builds containers without using a Dockerfile or requiring a Docker installation.
- You can use Jib in the Jib plugins for Maven or Gradle, or you can use the Jib Java library.
+You can use Jib in the Jib plugins for Maven or Gradle, or you can use the Jib Java library.
  
  https://cloud.google.com/java/getting-started/jib
  https://github.com/GoogleContainerTools/jib

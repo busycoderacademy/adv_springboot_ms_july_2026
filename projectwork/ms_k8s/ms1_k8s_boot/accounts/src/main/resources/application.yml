@@ -1,0 +1,44 @@
+#spring.main.allow-bean-definition-overriding=true
+server:
+  port: 8085
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  profiles:
+    active:
+      - "qa"
+  application:
+    name: accounts
+  jpa:
+    show-sql: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      enabled: true
+  info:
+    env:
+      enabled: true
+info:
+  message: "welcome to accounts application default profile"
+  name: "raj default profile accounts"
+
+
+cards:
+  service:
+    url: ${CARDS_SERVICE_URL:http://localhost:9090}
+
+loans:
+  service:
+    url: ${LOANS_SERVICE_URL:http://localhost:8090}
+
+#cards:
+#  service:
+#    url: http://localhost:9090
+#
+#loans:
+#  service:
+#    url: http://localhost:8090
