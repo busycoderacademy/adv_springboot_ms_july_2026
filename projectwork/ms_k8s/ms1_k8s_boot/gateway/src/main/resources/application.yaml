@@ -1,0 +1,32 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${KEYCLOAK_CERT_URL:http://localhost:30005/realms/master/protocol/openid-connect/certs}
+  application:
+    name: gateway
+server:
+  port: 8072
+gateway:
+  accounts-url: ${ACCOUNTS_SERVICE_URL:http://localhost:8085}
+  cards-url: ${CARDS_SERVICE_URL:http://localhost:9090}
+  loans-url: ${LOANS_SERVICE_URL:http://localhost:8090}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+  health:
+    readinessstate:
+      enabled: true
+
+    livenessstate:
+      enabled: true

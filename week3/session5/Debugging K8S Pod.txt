@@ -1,0 +1,115 @@
+Kubernetes Pod Debugging Cheat Sheet
+---------------------------------------------
+
+1. Check Pod Status
+-------------------------
+kubectl get pods
+or
+kubectl get pods -o wide
+
+
+2. Describe the Pod (Events & Errors)
+-------------------------
+kubectl describe pod <pod-name>
+
+Example
+
+kubectl describe pod gateway-56d9d4fb56-qj2g9
+
+
+3. View Container Logs
+-------------------------
+kubectl logs <pod-name>
+
+Example
+
+kubectl logs gateway-56d9d4fb56-qj2g9
+
+
+4. View Previous Crash Logs
+-------------------------
+kubectl logs <pod-name> --previous
+
+Example
+
+kubectl logs gateway-56d9d4fb56-qj2g9 --previous
+
+
+5. Multiple Containers
+-------------------------
+List container names
+
+kubectl get pod <pod-name> -o jsonpath="{.spec.containers[*].name}"
+
+Logs for a specific container
+-------------------------
+kubectl logs <pod-name> -c <container-name>
+
+
+6. Login to a Running Container
+-----------------------------
+kubectl exec -it <pod-name> -- sh
+
+or
+
+kubectl exec -it <pod-name> -- bash
+
+
+7. Execute a Single Command
+-------------------------
+kubectl exec <pod-name> -- ls /
+
+Example
+
+kubectl exec gateway-56d9d4fb56-qj2g9 -- env
+
+
+8. Open an Ephemeral Debug Container
+-------------------------
+kubectl debug -it <pod-name> --image=busybox:1.36
+
+
+9. Share Target Container Namespace
+-------------------------
+kubectl debug -it <pod-name> --image=busybox:1.36 --target=<container-name>
+
+
+10. Watch Pod Continuously
+-------------------------
+kubectl get pods -w
+
+11. View Complete Pod YAML
+-------------------------
+kubectl get pod <pod-name> -o yaml
+
+
+12. Check Deployment
+-------------------------
+kubectl describe deployment <deployment-name>
+
+
+13. Check ReplicaSet
+-------------------------
+kubectl describe rs <replicaset-name>
+
+
+14. Check Events
+-----------------
+kubectl get events --sort-by=.metadata.creationTimestamp
+
+
+15. Follow Logs Live
+-------------------------
+kubectl logs -f <pod-name>
+
+
+Golden Order (90% of Problems)
+-------------------------
+kubectl get pods
+kubectl describe pod <pod-name>
+kubectl logs <pod-name>
+kubectl logs <pod-name> --previous
+kubectl exec -it <pod-name> -- sh
+kubectl debug -it <pod-name> --image=busybox:1.36
+
+This sequence covers the vast majority of real-world Kubernetes pod troubleshooting scenarios.

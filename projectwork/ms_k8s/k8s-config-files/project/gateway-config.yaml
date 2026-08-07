@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-config
+
+data:
+  ACCOUNTS_SERVICE_URL: "http://accounts:8085"
+  CARDS_SERVICE_URL: "http://cards:9090"
+  LOANS_SERVICE_URL: "http://loans:8090"
+
+  KEYCLOAK_CERT_URL: "http://keycloak:8080/realms/master/protocol/openid-connect/certs"
